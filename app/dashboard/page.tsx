@@ -7,7 +7,6 @@ import { Analytics } from "../components/screens/Analytics/Analytics";
 import { Settings } from "../components/screens/Settings/Settings";
 const SalesFunnelDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar setActiveTab={setActiveTab}/>
