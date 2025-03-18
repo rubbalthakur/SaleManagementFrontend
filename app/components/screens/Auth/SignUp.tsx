@@ -8,6 +8,15 @@ import "react-toastify/dist/ReactToastify.css";
 interface SignUpProps {
   onSignInClick: () => void;
 }
+
+type ApiErrorResponse = {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+};
+
 export function SignUp({ onSignInClick }: SignUpProps) {
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
@@ -39,10 +48,16 @@ export function SignUp({ onSignInClick }: SignUpProps) {
       if (token) {
         router.push("/dashboard");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Sign Up failed", err);
-      toast.error("Sign Up failed");
-      setError("Sign Up failed");
+      const apiError = err as ApiErrorResponse;
+      if (apiError.response?.data?.message) {
+        setError(apiError.response.data.message);
+      } else {
+        setError("Signup failed. Please try again.");
+      }
+      console.error("Signup failed", err);
+      toast.error(error);
     }
   };
 

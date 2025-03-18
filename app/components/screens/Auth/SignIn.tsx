@@ -5,14 +5,20 @@ import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-interface SignUpProps {
-  onSignInClick: () => void;
+interface SignInProps {
+  onSignUpClick: () => void;
 }
-export function SignUp({ onSignInClick }: SignUpProps) {
+type ApiErrorResponse = {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+};
+export function SignIn({ onSignUpClick }: SignInProps) {
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,42 +26,37 @@ export function SignUp({ onSignInClick }: SignUpProps) {
     setError(null);
 
     try {
-      if (password !== confirmPassword) {
-        toast.error("Passwords do not match");
-        setError("Passwords do not match, Sign Up failed");
-        return;
-      }
-
-      const response = await api.post(API_CONFIG.SIGNUP_URL, {
+      const response = await api.post(API_CONFIG.SIGNIN_URL, {
         emailId: email,
         password,
-        confirmPassword,
       });
-      console.log("Signup successful", response.data?.token);
+
+      console.log("Sign In successful", response.data?.token);
       localStorage.setItem("token", response.data?.token);
-      toast.success("Sign Up successful!");
+
+      toast.success("Sign In successful!");
 
       const token = localStorage.getItem("token");
       if (token) {
         router.push("/dashboard");
       }
-    } catch (err: any) {
-      console.error("Sign Up failed", err);
-      let errorMessage = "Sign Up failed";
-
-      if (err.response && err.response.data && err.response.data.message) {
-        errorMessage = err.response.data.message;
+    } catch (err: unknown) {
+      console.error("Sign In failed", err);
+      const apiError = err as ApiErrorResponse;
+      if (apiError.response?.data?.message) {
+        setError(apiError.response.data.message);
+      } else {
+        setError("SignIn failed. Please try again.");
       }
-
-      toast.error(errorMessage);
-      setError(errorMessage);
+      console.error("SignIn failed", err);
+      toast.error(error);
     }
   };
 
   return (
     <div className="login-container">
       <ToastContainer />
-      <form onSubmit={handleSubmit} className="">
+      <form onSubmit={handleSubmit}>
         <svg
           className="icon"
           xmlns="http://www.w3.org/2000/svg"
@@ -69,8 +70,8 @@ export function SignUp({ onSignInClick }: SignUpProps) {
           <circle cx="12" cy="8" r="4" />
           <path d="M20 21a8 8 0 1 0-16 0" />
         </svg>
-        <h2>Sign Up</h2>
-        {error && <p>{error}</p>}
+        <h2>Sign In</h2>
+        {error && <p className="error">{error}</p>}
         <input
           type="email"
           placeholder="Email"
@@ -85,26 +86,8 @@ export function SignUp({ onSignInClick }: SignUpProps) {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded"
-        >
-          Sign Up
-        </button>
-        <button
-          onClick={onSignInClick}
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded"
-        >
-          Sign In
-        </button>
+        <button type="submit">Sign In</button>
+        <button onClick={onSignUpClick}>Sign Up</button>
       </form>
     </div>
   );
