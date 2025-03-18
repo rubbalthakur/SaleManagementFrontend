@@ -21,7 +21,8 @@ export function SignUp({ onSignInClick }: SignUpProps) {
 
     try {
       if (password !== confirmPassword) {
-        setError("Passwords do not match");
+        toast.error("Passwords do not match");
+        setError("Passwords do not match, Sign Up failed");
         return;
       }
 
