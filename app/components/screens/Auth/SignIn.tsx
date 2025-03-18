@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 interface SignInProps {
   onSignUpClick: () => void;
 }
@@ -16,23 +18,31 @@ export function SignIn({ onSignUpClick }: SignInProps) {
     e.preventDefault();
     setError(null);
 
-    const response = await api.post(API_CONFIG.SIGNIN_URL, {
-      emailId: email,
-      password,
-    });
-    console.log("Sign In successful", response.data?.token);
-    localStorage.setItem("token", response.data?.token);
+    try {
+      const response = await api.post(API_CONFIG.SIGNIN_URL, {
+        emailId: email,
+        password,
+      });
 
-    const token = localStorage.getItem("token");
-    if (token) {
-      router.push("/dashboard");
+      console.log("Sign In successful", response.data?.token);
+      localStorage.setItem("token", response.data?.token);
+
+      toast.success("Sign In successful!");
+
+      const token = localStorage.getItem("token");
+      if (token) {
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      console.error("Sign In failed", err);
+      setError("Sign In failed. Please check your credentials.");
+      toast.error("Sign In failed. Please check your credentials.");
     }
-
-    // serverRedirect("/protected/dashboard")
   };
 
   return (
     <div className="login-container">
+      <ToastContainer />
       <form onSubmit={handleSubmit}>
         <svg
           className="icon"

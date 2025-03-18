@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 interface SignUpProps {
   onSignInClick: () => void;
 }
@@ -17,28 +19,35 @@ export function SignUp({ onSignInClick }: SignUpProps) {
     e.preventDefault();
     setError(null);
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+    try {
+      if (password !== confirmPassword) {
+        setError("Passwords do not match");
+        return;
+      }
 
-    const response = await api.post(API_CONFIG.SIGNUP_URL, {
-      emailId: email,
-      password,
-      confirmPassword,
-    });
-    console.log("Signup successful", response.data?.token);
-    localStorage.setItem("token", response.data?.token);
+      const response = await api.post(API_CONFIG.SIGNUP_URL, {
+        emailId: email,
+        password,
+        confirmPassword,
+      });
+      console.log("Signup successful", response.data?.token);
+      localStorage.setItem("token", response.data?.token);
+      toast.success("Sign Up successful!");
 
-    const token = localStorage.getItem("token");
-    if (token) {
-      router.push("/dashboard");
+      const token = localStorage.getItem("token");
+      if (token) {
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      console.error("Sign Up failed", err);
+      toast.error("Sign Up failed");
+      setError("Sign Up failed");
     }
-    // serverRedirect("/protected/dashboard")
   };
 
   return (
     <div className="login-container">
+      <ToastContainer />
       <form onSubmit={handleSubmit} className="">
         <svg
           className="icon"
