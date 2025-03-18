@@ -1,9 +1,11 @@
-'use client'
+"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import api from "@/app/middleware/authMiddleware";
+import { API_CONFIG } from "@/config/api";
 interface SignUpProps {
-    onSignInClick: () => void;
-  }
+  onSignInClick: () => void;
+}
 export function SignUp({ onSignInClick }: SignUpProps) {
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
@@ -20,29 +22,42 @@ export function SignUp({ onSignInClick }: SignUpProps) {
       return;
     }
 
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+    const response = await api.post(API_CONFIG.SIGNUP_URL, {
+      emailId: email,
+      password,
+      confirmPassword,
     });
+    console.log("Signup successful", response.data?.token);
+    localStorage.setItem("token", response.data?.token);
 
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.message);
-    } else {
+    const token = localStorage.getItem("token");
+    if (token) {
       router.push("/dashboard");
     }
+    // serverRedirect("/protected/dashboard")
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-80">
-        <h2 className="text-xl font-bold mb-4">Sign Up</h2>
-        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+    <div className="login-container">
+      <form onSubmit={handleSubmit} className="">
+        <svg
+          className="icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#667eea"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="8" r="4" />
+          <path d="M20 21a8 8 0 1 0-16 0" />
+        </svg>
+        <h2>Sign Up</h2>
+        {error && <p>{error}</p>}
         <input
           type="email"
           placeholder="Email"
-          className="w-full p-2 border rounded mb-2"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -50,7 +65,6 @@ export function SignUp({ onSignInClick }: SignUpProps) {
         <input
           type="password"
           placeholder="Password"
-          className="w-full p-2 border rounded mb-2"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -58,20 +72,24 @@ export function SignUp({ onSignInClick }: SignUpProps) {
         <input
           type="password"
           placeholder="Confirm Password"
-          className="w-full p-2 border rounded mb-2"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white p-2 rounded"
+        >
           Sign Up
         </button>
-        <button onClick={onSignInClick} type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
+        <button
+          onClick={onSignInClick}
+          type="submit"
+          className="w-full bg-blue-500 text-white p-2 rounded"
+        >
           Sign In
         </button>
       </form>
     </div>
   );
 }
-
-
