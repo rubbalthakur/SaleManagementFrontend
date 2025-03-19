@@ -1,7 +1,9 @@
 "use client";
 import { useState } from "react";
+import { Profile } from "./Profile";
 export function Settings() {
   const [activeSetting, setActiveSetting] = useState("profile");
+
   return (
     <div className="p-6 space-y-6 text-black">
       <button
@@ -10,6 +12,7 @@ export function Settings() {
       >
         Profile
       </button>
+
       <button
         onClick={() => setActiveSetting("changePassword")}
         style={{ border: "1px solid black", margin: "auto 5px" }}
@@ -35,7 +38,7 @@ export function Settings() {
         LeadSources
       </button>
       <div className="flex-1 overflow-auto p-6">
-        {activeSetting === "profile" && <div>profile abcd</div>}
+        {activeSetting === "profile" && <Profile />}
         {activeSetting === "changePassword" && <div>changePassword abc</div>}
         {activeSetting === "users" && <div>Users abc</div>}
         {activeSetting === "leadTypes" && <div>Lead Types abc</div>}
