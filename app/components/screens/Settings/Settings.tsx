@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Profile } from "./Profile";
+import { UpdatePassword } from "./UpdatePassword";
 export function Settings() {
   const [activeSetting, setActiveSetting] = useState("profile");
 
@@ -39,7 +40,7 @@ export function Settings() {
       </button>
       <div className="flex-1 overflow-auto p-6">
         {activeSetting === "profile" && <Profile />}
-        {activeSetting === "changePassword" && <div>changePassword abc</div>}
+        {activeSetting === "changePassword" && <UpdatePassword />}
         {activeSetting === "users" && <div>Users abc</div>}
         {activeSetting === "leadTypes" && <div>Lead Types abc</div>}
         {activeSetting === "leadSources" && <div>Lead Sources abc</div>}

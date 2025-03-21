@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
@@ -52,6 +52,13 @@ export function SignIn({ onSignUpClick }: SignInProps) {
       toast.error(error);
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/dashboard");
+    }
+  });
 
   return (
     <div className="login-container">
