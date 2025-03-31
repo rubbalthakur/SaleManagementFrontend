@@ -41,7 +41,7 @@ export function Settings() {
       <div className="flex-1 overflow-auto p-6">
         {activeSetting === "profile" && <Profile />}
         {activeSetting === "changePassword" && <UpdatePassword />}
-        {activeSetting === "users" && <div>Users abc</div>}
+        {activeSetting === "users" && <div>Users xyz</div>}
         {activeSetting === "leadTypes" && <div>Lead Types abc</div>}
         {activeSetting === "leadSources" && <div>Lead Sources abc</div>}
       </div>
