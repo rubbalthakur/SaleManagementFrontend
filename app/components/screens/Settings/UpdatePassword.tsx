@@ -40,7 +40,7 @@ export function UpdatePassword() {
 
   const updatePassword = async () => {
     resetErrors();
-    let isValid = validateFields();
+    const isValid = validateFields();
 
     if (isValid) {
       try {
