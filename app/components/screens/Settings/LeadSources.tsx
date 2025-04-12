@@ -42,7 +42,7 @@ export function LeadSources() {
   };
 
   //---------------------------------get all lead sources-----------------------------------
-  const getLeadTypes = async () => {
+  const getLeadSources = async () => {
     try {
       setLoading(true);
       const response = await api.post(API_CONFIG.GET_LEAD_SOURCE, {});
@@ -58,7 +58,7 @@ export function LeadSources() {
   };
 
   //---------------------------------add new lead source-----------------------------------
-  const addLeadTypes = async () => {
+  const addLeadSources = async () => {
     try {
       if (!isValid()) return;
       setProcessing(true);
@@ -72,7 +72,7 @@ export function LeadSources() {
         resetError();
         setProcessing(false);
         setActiveLeadSourceTab("displayLeadSource");
-        getLeadTypes();
+        getLeadSources();
       }, 600);
     } catch (error) {
       console.log("error in adding lead source", error);
@@ -102,18 +102,18 @@ export function LeadSources() {
         setActiveLeadSourceTab("displayLeadSource");
         resetVariables();
         resetError();
-        getLeadTypes();
+        getLeadSources();
       }, 600);
     } catch (error) {
       console.log("error in updating lead source", error);
-      toast.error("Lead Type not updated");
+      toast.error("Lead Source not updated");
       setTimeout(() => {
         setProcessing(false);
       }, 600);
     }
   };
   //---------------------------------------------delete lead source---------------------------------
-  const deleteLeadTypes = async (leadId: number) => {
+  const deleteLeadSources = async (leadId: number) => {
     try {
       setProcessing(true);
       const response = await api.post(API_CONFIG.DELETE_LEAD_SOURCE, {
@@ -122,11 +122,11 @@ export function LeadSources() {
       toast.success("deleted lead source");
       setTimeout(() => {
         setProcessing(false);
-        getLeadTypes();
+        getLeadSources();
       }, 600);
     } catch (error) {
       console.log("error in deleting lead source", error);
-      toast.error("Lead Type not deleted");
+      toast.error("Lead Source not deleted");
       setTimeout(() => {
         setProcessing(false);
       }, 600);
@@ -134,7 +134,7 @@ export function LeadSources() {
   };
 
   useEffect(() => {
-    getLeadTypes();
+    getLeadSources();
   }, []);
 
   if (loading) {
@@ -152,13 +152,13 @@ export function LeadSources() {
         <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4">
           <h2 className="text-2xl font-semibold mb-4">
             {" "}
-            Lead Types{" "}
+            Lead Sources{" "}
             <button
-              onClick={() => setActiveLeadSourceTab("addLeadType")}
+              onClick={() => setActiveLeadSourceTab("addLeadSource")}
               className="mt-6 ml-19  hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded text-base"
               style={{ border: "1px solid black " }}
             >
-              Add LeadSource
+              Add More
             </button>
           </h2>
           <ToastContainer />
@@ -174,7 +174,7 @@ export function LeadSources() {
                 ) : (
                   <span>
                     <button
-                      onClick={() => deleteLeadTypes(leadSource.id)}
+                      onClick={() => deleteLeadSources(leadSource.id)}
                       className="m-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-1 rounded"
                     >
                       Delete
@@ -194,7 +194,7 @@ export function LeadSources() {
               </div>
             ))
           ) : (
-            <div>No lead Types found</div>
+            <div>No lead Sources found</div>
           )}
         </div>
       )}
@@ -204,7 +204,7 @@ export function LeadSources() {
         <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4 my-4">
           <h2 className="text-2xl font-semibold mb-4">
             {" "}
-            Update Lead Type{" "}
+            Update Lead Source{" "}
             <button
               onClick={() => {
                 resetVariables();
@@ -222,7 +222,7 @@ export function LeadSources() {
           <div>
             <div>lead id: {updateId}</div>
             <label className="block text-sm font-medium text-gray-700">
-              Lead Type
+              Lead Source
             </label>
             <input
               type="text"
@@ -246,14 +246,14 @@ export function LeadSources() {
               }}
               className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded w-full"
             >
-              Update Lead Type
+              Update Lead Source
             </button>
           )}
         </div>
       )}
 
       {/*-----------------------------Add lead source-----------------------------*/}
-      {activeLeadSourceTab === "addLeadType" && (
+      {activeLeadSourceTab === "addLeadSource" && (
         <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4 my-4">
           <h2 className="text-2xl font-semibold mb-4">
             {" "}
@@ -293,7 +293,7 @@ export function LeadSources() {
             </button>
           ) : (
             <button
-              onClick={addLeadTypes}
+              onClick={addLeadSources}
               className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded w-full"
             >
               Add Lead Sources
