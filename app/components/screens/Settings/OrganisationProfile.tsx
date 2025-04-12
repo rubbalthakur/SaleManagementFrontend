@@ -5,27 +5,21 @@ import "react-toastify/dist/ReactToastify.css";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 
-export function Profile() {
+export function OrganisationProfile() {
   const [loading, setLoading] = useState(true);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
+  const [organisationName, setOrganisationName] = useState("");
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
 
-  const [firstNameError, setFirstNameError] = useState("");
-  const [lastNameError, setLastNameError] = useState("");
-  const [contactNumberError, setContactNumberError] = useState("");
+  const [organisationNameError, setOrganisationNameError] = useState("");
   const [countryError, setCountryError] = useState("");
   const [stateError, setStateError] = useState("");
   const [cityError, setCityError] = useState("");
 
   //----------------------------------------------reset error values------------------------------------
   const resetErrors = () => {
-    setFirstNameError("");
-    setLastNameError("");
-    setContactNumberError("");
+    setOrganisationNameError("");
     setCountryError("");
     setStateError("");
     setCityError("");
@@ -35,24 +29,8 @@ export function Profile() {
   const validateFields = () => {
     let isValid = true;
 
-    if (!firstName.trim()) {
-      setFirstNameError("First Name is required");
-      isValid = false;
-    }
-
-    if (!lastName.trim()) {
-      setLastNameError("Last Name is required");
-      isValid = false;
-    }
-
-    if (!contactNumber.trim()) {
-      setContactNumberError("Contact Number is required");
-      isValid = false;
-    } else if (!/^\d+$/.test(contactNumber)) {
-      setContactNumberError("Contact Number must contain only digits");
-      isValid = false;
-    } else if (contactNumber.length < 10 || contactNumber.length > 15) {
-      setContactNumberError("Contact Number must be between 10 and 15 digits");
+    if (!organisationName.trim()) {
+      setOrganisationNameError("Organisation Name is required");
       isValid = false;
     }
 
@@ -74,7 +52,7 @@ export function Profile() {
     return isValid;
   };
 
-  //-----------------------------------update profile data------------------------------------------------
+  //-----------------------------------Update profile data------------------------------------------------
   const updateData = async () => {
     resetErrors();
 
@@ -83,22 +61,23 @@ export function Profile() {
 
     if (isValid) {
       try {
-        const response = await api.post(API_CONFIG.UPDATE_PROFILE, {
-          firstName,
-          lastName,
-          contactNumber,
-          country,
-          state,
-          city,
-        });
+        const response = await api.post(
+          API_CONFIG.UPDATE_ORGANISATION_PROFILE,
+          {
+            organisationName,
+            country,
+            state,
+            city,
+          }
+        );
         if (response.status >= 200 && response.status < 300) {
-          toast.success("Profile Updated");
+          toast.success("Organisation Profile Updated");
         } else {
-          toast.error("Failed to update profile");
+          toast.error("Failed to update Organisation profile");
         }
       } catch (err) {
-        console.error("Profile Updation Failed", err);
-        toast.error("Profile Updation Failed");
+        console.error("Organisation Profile Updation Failed", err);
+        toast.error("Organisation Profile Updation Failed");
       }
     }
   };
@@ -106,13 +85,13 @@ export function Profile() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await api.post(API_CONFIG.GET_PROFILE, {});
-
+        const response = await api.post(
+          API_CONFIG.GET_ORGANISATION_PROFILE,
+          {}
+        );
         if (response.data.data && Object.keys(response.data.data).length > 0) {
           const profile = response.data.data;
-          setFirstName(profile.firstName || "");
-          setLastName(profile.lastName || "");
-          setContactNumber(profile.contactNumber || "");
+          setOrganisationName(profile.organisationName || "");
           setCountry(profile.country || "");
           setState(profile.state || "");
           setCity(profile.city || "");
@@ -137,38 +116,22 @@ export function Profile() {
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4 ">
-        <h2 className="text-2xl font-semibold mb-4">Edit Profile</h2>
+        <h2 className="text-2xl font-semibold mb-4">Organisation Profile</h2>
         <ToastContainer />
         <div className="grid grid-cols-2 gap-4">
-          {/* First Name */}
-          <div>
+          {/* Organisation Name */}
+          <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700">
-              First Name
+              Organisation
             </label>
             <input
               type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              value={organisationName}
+              onChange={(e) => setOrganisationName(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             />
-            {firstNameError && (
-              <p className="text-red-500 text-sm">{firstNameError}</p>
-            )}
-          </div>
-
-          {/* Last Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Last Name
-            </label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            />
-            {lastNameError && (
-              <p className="text-red-500 text-sm">{lastNameError}</p>
+            {organisationNameError && (
+              <p className="text-red-500 text-sm">{organisationNameError}</p>
             )}
           </div>
 
@@ -214,22 +177,6 @@ export function Profile() {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             />
             {cityError && <p className="text-red-500 text-sm">{cityError}</p>}
-          </div>
-
-          {/* Contact Number */}
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Contact Number
-            </label>
-            <input
-              type="text"
-              value={contactNumber}
-              onChange={(e) => setContactNumber(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            />
-            {contactNumberError && (
-              <p className="text-red-500 text-sm">{contactNumberError}</p>
-            )}
           </div>
         </div>
         <button

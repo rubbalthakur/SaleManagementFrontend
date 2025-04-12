@@ -48,8 +48,12 @@ export function UpdatePassword() {
           oldPassword,
           password,
         });
-        console.log("Password updated successfully", response);
-        toast.success("Password Updated");
+        if (response.status >= 200 && response.status < 300) {
+          toast.success("Password Updated");
+        } else {
+          toast.error("Failed to update password");
+        }
+
         setOldPassword("");
         setPassword("");
       } catch (err) {

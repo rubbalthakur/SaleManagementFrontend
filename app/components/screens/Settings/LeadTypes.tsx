@@ -4,36 +4,26 @@ const { toast, ToastContainer } = require("react-toastify");
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 
-interface User {
-  userId: number;
-  roleId: number;
-  email: string;
-  role: string;
+interface LeadType {
+  id: number;
+  leadTypeName: string;
 }
 
-export function Users() {
-  const [activeUserTab, setActiveUserTab] = useState("displayUser");
+export function LeadTypes() {
+  const [activeLeadTypeTab, setActiveLeadTypeTab] = useState("displayLeadType");
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [email, setEmail] = useState("");
-  const [roleId, setRoleId] = useState(-1);
+  const [leadTypes, setLeadTypes] = useState<LeadType[]>([]);
+  const [leadTypeName, setLeadTypeName] = useState("");
   const [updateId, setUpdateId] = useState(0);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
-  const [referralLink, setReferralLink] = useState("");
-
-  const [emailError, setEmailError] = useState("");
-  const [roleError, setRoleError] = useState("");
+  const [leadTypeNameError, setLeadTypeNameError] = useState("");
 
   //-----------------------validations-----------------------------------
   const isValid = () => {
-    if (email.trim() === "") {
-      setEmailError("Email is required");
-      return false;
-    }
-    if (roleId === -1) {
-      setRoleError("roleId is required");
+    if (leadTypeName.trim() === "") {
+      setLeadTypeNameError("Lead Name is required");
       return false;
     }
     return true;
@@ -41,105 +31,96 @@ export function Users() {
 
   //--------------------------reset variables--------------------------
   const resetVariables = () => {
-    setRoleId(-1);
-    setEmail("");
+    setLeadTypeName("");
     setUpdateId(0);
   };
 
   //-----------------------------reset error---------------------------------
   const resetError = () => {
-    setEmailError("");
-    setRoleError("");
+    setLeadTypeNameError("");
   };
 
-  //---------------------------------get all users-----------------------------------
-  const getUsers = async () => {
+  //---------------------------------get all lead types-----------------------------------
+  const getLeadTypes = async () => {
     try {
       setLoading(true);
-      const response = await api.post(API_CONFIG.GET_ALL_USER_ORGANISATION, {});
-
-      if (response.data.data && response.data.data.length > 0) {
-        setUsers(response.data.data);
+      const response = await api.post(API_CONFIG.GET_LEAD_TYPE, {});
+      if (response.data) {
+        setLeadTypes(response.data.data);
       }
     } catch (error) {
-      console.log("error in fetching users", error);
+      console.log("error in fetching lead types", error);
     } finally {
       setLoading(false);
     }
   };
 
-  //---------------------------------add new users-----------------------------------
-  const addUsers = async () => {
+  //---------------------------------add new lead type-----------------------------------
+  const addLeadTypes = async () => {
     try {
       if (!isValid()) return;
       setProcessing(true);
-      const response = await api.post(API_CONFIG.INVITE_USER, {
-        email,
-        roleId,
+      const response = await api.post(API_CONFIG.ADD_LEAD_TYPE, {
+        leadTypeName,
       });
-      if (response.status >= 200 && response.status < 300) {
-        toast.success("Sent Invitation link");
-      }
+      toast.success("added lead type");
 
       setTimeout(() => {
         resetVariables();
         resetError();
         setProcessing(false);
-        setActiveUserTab("displayUser");
-        getUsers();
+        setActiveLeadTypeTab("displayLeadType");
+        getLeadTypes();
       }, 600);
     } catch (error) {
-      console.log("error in adding users", error);
-      toast.error("error in adding users");
+      console.log("error in adding lead type", error);
+      toast.error("error in adding lead type");
       setTimeout(() => {
         setProcessing(false);
       }, 600);
     }
   };
 
-  //---------------------------------------------update users---------------------------------
-  const updateUsers = async (updateId: number, roleId: number) => {
+  //---------------------------------------------update lead type---------------------------------
+  const updateLeadTypes = async (updateId: number, leadTypeName: string) => {
     try {
-      if (roleId === -1) {
-        setRoleError("roleId is required");
-        return;
-      }
+      if (!isValid()) return;
       setProcessing(true);
-      const response = await api.post(API_CONFIG.UPDATE_USER_ORGANISATION, {
-        userId: updateId,
-        roleId,
+      const response = await api.post(API_CONFIG.UPDATE_LEAD_TYPE, {
+        id: updateId,
+        leadTypeName,
       });
-      toast.success("updated users");
+      toast.success("updated lead type");
 
       setTimeout(() => {
         setProcessing(false);
-        setActiveUserTab("displayUser");
+        setActiveLeadTypeTab("displayLeadType");
         resetVariables();
         resetError();
-        getUsers();
+        getLeadTypes();
       }, 600);
     } catch (error) {
-      console.log("error in updating users", error);
+      console.log("error in updating lead type", error);
       toast.error("Lead Type not updated");
       setTimeout(() => {
         setProcessing(false);
       }, 600);
     }
   };
-  //---------------------------------------------delete users---------------------------------
-  const deleteUsers = async (userId: number) => {
+  //---------------------------------------------delete lead type---------------------------------
+  const deleteLeadTypes = async (leadId: number) => {
     try {
       setProcessing(true);
-      // const response = await api.post(API_CONFIG.Delete_, {
-      //   id: leadId,
-      // });
-      toast.success("deleted users");
+      const response = await api.post(API_CONFIG.DELETE_LEAD_TYPE, {
+        id: leadId,
+      });
+      toast.success("deleted lead type");
       setTimeout(() => {
         setProcessing(false);
-        getUsers();
+        getLeadTypes();
       }, 600);
     } catch (error) {
-      console.log("error in deleting users", error);
+      console.log("error in deleting lead type", error);
       toast.error("Lead Type not deleted");
       setTimeout(() => {
         setProcessing(false);
@@ -148,7 +129,7 @@ export function Users() {
   };
 
   useEffect(() => {
-    getUsers();
+    getLeadTypes();
   }, []);
 
   if (loading) {
@@ -161,80 +142,69 @@ export function Users() {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      {/*-----------------------------display users-----------------------------*/}
-      {activeUserTab === "displayUser" && (
+      {/*-----------------------------display lead type-----------------------------*/}
+      {activeLeadTypeTab === "displayLeadType" && (
         <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4">
           <h2 className="text-2xl font-semibold mb-4">
             {" "}
-            Users{" "}
+            Lead Types{" "}
             <button
-              onClick={() => setActiveUserTab("addUser")}
+              onClick={() => setActiveLeadTypeTab("addLeadType")}
               className="mt-6 ml-19  hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded text-base"
               style={{ border: "1px solid black " }}
             >
-              Add User
+              Add Lead Type
             </button>
           </h2>
           <ToastContainer />
-          <h1 className="font-semibold">
-            email
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; role
-            <hr></hr>
-          </h1>
 
-          {users.length > 0 ? (
-            users.map((user: User) => (
-              <div key={user.userId}>
-                {user.email}
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{" "}
-                {user.role}
-                <br></br>
+          {leadTypes.length > 0 ? (
+            leadTypes.map((leadType: LeadType) => (
+              <div key={leadType.id}>
+                {leadType.id}: {leadType.leadTypeName}
                 {processing ? (
-                  <button className="mt-6 bg-yellow-400  text-black font-semibold py-2 px-4 rounded">
+                  <button className="mt-6 bg-yellow-100  text-black font-semibold py-2 px-4 rounded">
                     wait...
                   </button>
                 ) : (
                   <span>
                     <button
-                      onClick={() => deleteUsers(user.userId)}
+                      onClick={() => deleteLeadTypes(leadType.id)}
                       className="m-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-1 rounded"
                     >
                       Delete
                     </button>
                     <button
                       onClick={() => {
-                        setUpdateId(user.userId);
-                        setRoleId(user.roleId);
-                        setActiveUserTab("updateUser");
+                        setUpdateId(leadType.id);
+                        setLeadTypeName(leadType.leadTypeName);
+                        setActiveLeadTypeTab("updateLeadType");
                       }}
                       className="mt-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded"
                     >
                       Update
                     </button>
-                    <hr></hr>
                   </span>
                 )}
               </div>
             ))
           ) : (
-            <div>No Users found</div>
+            <div>No lead Types found</div>
           )}
         </div>
       )}
 
-      {/*-----------------------------Update users-----------------------------*/}
-      {activeUserTab === "updateUser" && (
+      {/*-----------------------------Update lead type-----------------------------*/}
+      {activeLeadTypeTab === "updateLeadType" && (
         <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4 my-4">
           <h2 className="text-2xl font-semibold mb-4">
             {" "}
-            Update User{" "}
+            Update Lead Type{" "}
             <button
               onClick={() => {
                 resetVariables();
                 resetError();
-                setActiveUserTab("displayUser");
+                setActiveLeadTypeTab("displayLeadType");
               }}
               className="mt-6 ml-19  hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded text-base"
               style={{ border: "1px solid black " }}
@@ -245,89 +215,20 @@ export function Users() {
           <ToastContainer />
 
           <div>
-            <div>user id: {updateId}</div>
+            <div>lead id: {updateId}</div>
             <label className="block text-sm font-medium text-gray-700">
-              User Role
-            </label>
-            <select
-              id="roleId"
-              value={roleId}
-              onChange={(e) => setRoleId(parseInt(e.target.value))}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            >
-              <option value="1">admin</option>
-              <option value="2">manager</option>
-              <option value="3">employee</option>
-            </select>
-          </div>
-
-          {processing ? (
-            <button className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded w-full">
-              wait...
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                updateUsers(updateId, roleId);
-              }}
-              className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded w-full"
-            >
-              Update User
-            </button>
-          )}
-        </div>
-      )}
-
-      {/*-----------------------------Add users-----------------------------*/}
-      {activeUserTab === "addUser" && (
-        <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4 my-4">
-          <h2 className="text-2xl font-semibold mb-4">
-            {" "}
-            Add User{" "}
-            <button
-              onClick={() => {
-                resetVariables();
-                resetError();
-                setActiveUserTab("displayUser");
-              }}
-              className="mt-6 ml-19  hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded text-base"
-              style={{ border: "1px solid black " }}
-            >
-              cancel
-            </button>
-          </h2>
-          <ToastContainer />
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              email
+              Lead Type
             </label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={leadTypeName}
+              onChange={(e) => setLeadTypeName(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             />
-            {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+            {leadTypeNameError && (
+              <p className="text-red-500 text-sm">{leadTypeNameError}</p>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              role
-            </label>
-            <select
-              id="roleId"
-              value={roleId}
-              onChange={(e) => setRoleId(parseInt(e.target.value))}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            >
-              <option>select option</option>
-              <option value="2">manager</option>
-              <option value="1">admin</option>
-              <option value="3">employee</option>
-            </select>
-            {roleError && <p className="text-red-500 text-sm">{roleError}</p>}
-          </div>
-          <div>{referralLink && <div>referral link: {referralLink}</div>}</div>
 
           {processing ? (
             <button className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded w-full">
@@ -335,10 +236,62 @@ export function Users() {
             </button>
           ) : (
             <button
-              onClick={addUsers}
+              onClick={() => {
+                updateLeadTypes(updateId, leadTypeName);
+              }}
               className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded w-full"
             >
-              Add User
+              Update Lead Type
+            </button>
+          )}
+        </div>
+      )}
+
+      {/*-----------------------------Add lead type-----------------------------*/}
+      {activeLeadTypeTab === "addLeadType" && (
+        <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4 my-4">
+          <h2 className="text-2xl font-semibold mb-4">
+            {" "}
+            Add Lead Types{" "}
+            <button
+              onClick={() => {
+                resetVariables();
+                resetError();
+                setActiveLeadTypeTab("displayLeadType");
+              }}
+              className="mt-6 ml-19  hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded text-base"
+              style={{ border: "1px solid black " }}
+            >
+              cancel
+            </button>
+          </h2>
+          <ToastContainer />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Lead Name
+            </label>
+            <input
+              type="text"
+              value={leadTypeName}
+              onChange={(e) => setLeadTypeName(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+            {leadTypeNameError && (
+              <p className="text-red-500 text-sm">{leadTypeNameError}</p>
+            )}
+          </div>
+
+          {processing ? (
+            <button className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded w-full">
+              wait...
+            </button>
+          ) : (
+            <button
+              onClick={addLeadTypes}
+              className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded w-full"
+            >
+              Add Lead Types
             </button>
           )}
         </div>

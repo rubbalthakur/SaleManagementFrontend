@@ -31,8 +31,8 @@ export function SignIn({ onSignUpClick }: SignInProps) {
         password,
       });
 
-      console.log("Sign In successful", response.data?.token);
-      localStorage.setItem("token", response.data?.token);
+      console.log("Sign In successful", response.data?.data?.token);
+      localStorage.setItem("token", response.data?.data?.token);
 
       toast.success("Sign In successful!");
 

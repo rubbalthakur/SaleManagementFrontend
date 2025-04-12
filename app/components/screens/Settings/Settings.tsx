@@ -2,6 +2,10 @@
 import { useState } from "react";
 import { Profile } from "./Profile";
 import { UpdatePassword } from "./UpdatePassword";
+import { LeadTypes } from "./LeadTypes";
+import { OrganisationProfile } from "./OrganisationProfile";
+import { Users } from "./Users";
+import { LeadSources } from "./LeadSources";
 export function Settings() {
   const [activeSetting, setActiveSetting] = useState("profile");
 
@@ -12,6 +16,13 @@ export function Settings() {
         style={{ border: "1px solid black", margin: "auto 5px" }}
       >
         Profile
+      </button>
+
+      <button
+        onClick={() => setActiveSetting("organisationProfile")}
+        style={{ border: "1px solid black", margin: "auto 5px" }}
+      >
+        Orgainsation Profile
       </button>
 
       <button
@@ -40,10 +51,11 @@ export function Settings() {
       </button>
       <div className="flex-1 overflow-auto p-6">
         {activeSetting === "profile" && <Profile />}
+        {activeSetting === "organisationProfile" && <OrganisationProfile />}
         {activeSetting === "changePassword" && <UpdatePassword />}
-        {activeSetting === "users" && <div>Users xyz</div>}
-        {activeSetting === "leadTypes" && <div>Lead Types abc</div>}
-        {activeSetting === "leadSources" && <div>Lead Sources abc</div>}
+        {activeSetting === "users" && <Users />}
+        {activeSetting === "leadTypes" && <LeadTypes />}
+        {activeSetting === "leadSources" && <LeadSources />}
       </div>
     </div>
   );

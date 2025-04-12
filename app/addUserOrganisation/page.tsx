@@ -1,13 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-interface SignUpProps {
-  onSignInClick: () => void;
-}
 
 type ApiErrorResponse = {
   response?: {
@@ -17,8 +14,19 @@ type ApiErrorResponse = {
   };
 };
 
-export function SignUp({ onSignInClick }: SignUpProps) {
+const AddUser: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const initialReferralId = searchParams.get("referralId");
+  const initialRoleId = searchParams.get("roleId");
+
+  const [referralId, setReferralId] = useState<number | null>(
+    initialReferralId ? parseInt(initialReferralId) : null
+  );
+  const [roleId, setRoleId] = useState<number | null>(
+    initialRoleId ? parseInt(initialRoleId) : null
+  );
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -29,24 +37,39 @@ export function SignUp({ onSignInClick }: SignUpProps) {
     setError(null);
 
     try {
+      if (!referralId) {
+        toast.error("Invalid Referral");
+        setError("Invalid ReferralId");
+        return;
+      }
+      if (!roleId) {
+        toast.error("Invalid Role");
+        setError("Role in company not defined");
+        return;
+      }
       if (password !== confirmPassword) {
         toast.error("Passwords do not match");
         setError("Passwords do not match, Sign Up failed");
         return;
       }
 
-      const response = await api.post(API_CONFIG.SIGNUP_URL, {
+      const response = await api.post(API_CONFIG.ADD_USER_ORGANISATION, {
+        referralId,
         emailId: email,
         password,
         confirmPassword,
+        roleId,
       });
-      console.log("Signup successful", response.data?.data?.token);
-      localStorage.setItem("token", response.data?.data?.token);
-      toast.success("Sign Up successful!");
+      if (response.status > 200 && response.status < 300) {
+        localStorage.setItem("token", response.data?.data?.token);
+        toast.success("Sign Up successful!");
 
-      const token = localStorage.getItem("token");
-      if (token) {
-        router.push("/dashboard");
+        const token = localStorage.getItem("token");
+        if (token) {
+          router.push("/dashboard");
+        }
+      } else {
+        toast.error("Signup Failed");
       }
     } catch (err: unknown) {
       console.error("Sign Up failed", err);
@@ -65,6 +88,12 @@ export function SignUp({ onSignInClick }: SignUpProps) {
     const token = localStorage.getItem("token");
     if (token) {
       router.push("/dashboard");
+    }
+    if (!referralId) {
+      setError("Invalid ReferralId");
+    }
+    if (!roleId) {
+      setError("Role in company not defined");
     }
   });
 
@@ -114,14 +143,9 @@ export function SignUp({ onSignInClick }: SignUpProps) {
         >
           Sign Up
         </button>
-        <button
-          onClick={onSignInClick}
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded"
-        >
-          Sign In
-        </button>
       </form>
     </div>
   );
-}
+};
+
+export default AddUser;
