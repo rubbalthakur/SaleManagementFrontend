@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-const { toast, ToastContainer } = require("react-toastify");
+import { toast, ToastContainer } from "react-toastify";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 
@@ -46,9 +46,8 @@ export function LeadSources() {
     try {
       setLoading(true);
       const response = await api.post(API_CONFIG.GET_LEAD_SOURCE, {});
-      if (response.status >= 200 && response.status < 300) {
-        setLeadSources(response.data.data);
-        console.log("these are lead sources--------------", leadSources);
+      if (response.data && response.data.LeadSources) {
+        setLeadSources(response.data.LeadSources);
       }
     } catch (error) {
       console.log("error in fetching lead sources", error);
@@ -65,7 +64,11 @@ export function LeadSources() {
       const response = await api.post(API_CONFIG.ADD_LEAD_SOURCE, {
         leadSourceName,
       });
-      toast.success("added lead source");
+      if (response.status >= 200 && response.status < 300) {
+        toast.success("added lead source");
+      } else {
+        toast.error("failed to add lead source");
+      }
 
       setTimeout(() => {
         resetVariables();
@@ -95,7 +98,11 @@ export function LeadSources() {
         id: updateId,
         leadSourceName,
       });
-      toast.success("updated lead source");
+      if (response.status >= 200 && response.status < 300) {
+        toast.success("updated lead source");
+      } else {
+        toast.error("failed to update lead source");
+      }
 
       setTimeout(() => {
         setProcessing(false);
@@ -107,26 +114,6 @@ export function LeadSources() {
     } catch (error) {
       console.log("error in updating lead source", error);
       toast.error("Lead Source not updated");
-      setTimeout(() => {
-        setProcessing(false);
-      }, 600);
-    }
-  };
-  //---------------------------------------------delete lead source---------------------------------
-  const deleteLeadSources = async (leadId: number) => {
-    try {
-      setProcessing(true);
-      const response = await api.post(API_CONFIG.DELETE_LEAD_SOURCE, {
-        id: leadId,
-      });
-      toast.success("deleted lead source");
-      setTimeout(() => {
-        setProcessing(false);
-        getLeadSources();
-      }, 600);
-    } catch (error) {
-      console.log("error in deleting lead source", error);
-      toast.error("Lead Source not deleted");
       setTimeout(() => {
         setProcessing(false);
       }, 600);
@@ -146,7 +133,7 @@ export function LeadSources() {
   }
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center">
       {/*-----------------------------display lead source-----------------------------*/}
       {activeLeadSourceTab === "displayLeadSource" && (
         <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4">
@@ -163,39 +150,53 @@ export function LeadSources() {
           </h2>
           <ToastContainer />
 
-          {leadSources.length > 0 ? (
-            leadSources.map((leadSource: LeadSource) => (
-              <div key={leadSource.id}>
-                {leadSource.id}: {leadSource.leadSourceName}
-                {processing ? (
-                  <button className="mt-6 bg-yellow-100  text-black font-semibold py-2 px-4 rounded">
-                    wait...
-                  </button>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-md">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border-b">ID</th>
+                  <th className="py-2 px-4 border-b">Name</th>
+                  <th className="py-2 px-4 border-b">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leadSources.length > 0 ? (
+                  leadSources.map((leadSource: LeadSource) => (
+                    <tr key={leadSource.id} className="hover:bg-gray-50">
+                      <td className="py-2 px-4 border-b">{leadSource.id}</td>
+                      <td className="py-2 px-4 border-b">
+                        {leadSource.leadSourceName}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {processing ? (
+                          <button className="mt-6 bg-yellow-100  text-black font-semibold py-2 px-4 rounded">
+                            wait...
+                          </button>
+                        ) : (
+                          <span>
+                            <button
+                              onClick={() => {
+                                setUpdateId(leadSource.id);
+                                setLeadSourceName(leadSource.leadSourceName);
+                                setActiveLeadSourceTab("updateLeadSource");
+                              }}
+                              className="mt-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded"
+                            >
+                              Update
+                            </button>
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
                 ) : (
-                  <span>
-                    <button
-                      onClick={() => deleteLeadSources(leadSource.id)}
-                      className="m-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-1 rounded"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => {
-                        setUpdateId(leadSource.id);
-                        setLeadSourceName(leadSource.leadSourceName);
-                        setActiveLeadSourceTab("updateLeadSource");
-                      }}
-                      className="mt-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded"
-                    >
-                      Update
-                    </button>
-                  </span>
+                  <tr>
+                    <td>No lead Sources found</td>
+                  </tr>
                 )}
-              </div>
-            ))
-          ) : (
-            <div>No lead Sources found</div>
-          )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

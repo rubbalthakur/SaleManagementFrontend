@@ -86,10 +86,10 @@ export function Profile() {
         const response = await api.post(API_CONFIG.UPDATE_PROFILE, {
           firstName,
           lastName,
-          contactNumber,
           country,
           state,
           city,
+          contactNumber,
         });
         if (response.status >= 200 && response.status < 300) {
           toast.success("Profile Updated");
@@ -108,11 +108,11 @@ export function Profile() {
       try {
         const response = await api.post(API_CONFIG.GET_PROFILE, {});
 
-        if (response.data.data && Object.keys(response.data.data).length > 0) {
-          const profile = response.data.data;
+        if (response.data && Object.keys(response.data).length > 0) {
+          const profile = response.data;
           setFirstName(profile.firstName || "");
           setLastName(profile.lastName || "");
-          setContactNumber(profile.contactNumber || "");
+          setContactNumber(profile.contact || "");
           setCountry(profile.country || "");
           setState(profile.state || "");
           setCity(profile.city || "");

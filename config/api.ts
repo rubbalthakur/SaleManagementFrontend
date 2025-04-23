@@ -36,8 +36,15 @@ export const API_CONFIG = {
   INVITE_USER: "/member/inviteUser",
 
   ADD_LEAD: "/member/addLead",
-  GET_LEAD: "/member/getLeadByUserId",
-  GET_ALL_LEAD: "/member/getAllLeadByOrganisationId",
+  GET_LEAD_BY_USER: "/member/getLeadByUserId",
+  GET_ALL_LEAD_BY_ORGANISATION: "/member/getAllLeadsByOrganisation",
   UPDATE_LEAD: "/member/updateLead",
-  DELETE_LEAD: "/member/deleteLead",
+
+  GET_LEAD_MESSAGES: "/member/getLeadMessages",
+  ADD_LEAD_MESSAGE: "/member/addLeadMessage",
+
+  GET_ALL_CLIENT_BY_ORGANISATION: "/member/getAllClientsByOrganisation",
+  GET_CLIENT_BY_ID: "/member/getClientById",
+  ADD_CLIENT: "/member/addClient",
+  UPDATE_CLIENT: "/member/updateClient",
 };

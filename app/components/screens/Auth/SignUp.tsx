@@ -40,13 +40,16 @@ export function SignUp({ onSignInClick }: SignUpProps) {
         password,
         confirmPassword,
       });
-      console.log("Signup successful", response.data?.data?.token);
-      localStorage.setItem("token", response.data?.data?.token);
-      toast.success("Sign Up successful!");
+      if (response.status >= 200 && response.status < 300) {
+        localStorage.setItem("token", response.data?.token);
+        toast.success("Sign Up successful!");
 
-      const token = localStorage.getItem("token");
-      if (token) {
-        router.push("/dashboard");
+        const token = localStorage.getItem("token");
+        if (token) {
+          router.push("/dashboard");
+        }
+      } else {
+        toast.error("Signup Failed");
       }
     } catch (err: unknown) {
       console.error("Sign Up failed", err);
@@ -56,7 +59,6 @@ export function SignUp({ onSignInClick }: SignUpProps) {
       } else {
         setError("Signup failed. Please try again.");
       }
-      console.error("Signup failed", err);
       toast.error(error);
     }
   };

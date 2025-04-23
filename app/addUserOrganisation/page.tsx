@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
+import { jwtDecode } from "jwt-decode";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -21,30 +22,30 @@ const AddUser: React.FC = () => {
   const initialReferralId = searchParams.get("referralId");
   const initialRoleId = searchParams.get("roleId");
 
-  const [referralId, setReferralId] = useState<number | null>(
+  const [referralId] = useState<number | null>(
     initialReferralId ? parseInt(initialReferralId) : null
   );
-  const [roleId, setRoleId] = useState<number | null>(
+  const [roleId] = useState<number | null>(
     initialRoleId ? parseInt(initialRoleId) : null
   );
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError("");
 
     try {
       if (!referralId) {
         toast.error("Invalid Referral");
-        setError("Invalid ReferralId");
+        setError(error);
         return;
       }
       if (!roleId) {
-        toast.error("Invalid Role");
         setError("Role in company not defined");
+        toast.error("Invalid Role");
         return;
       }
       if (password !== confirmPassword) {
@@ -55,13 +56,13 @@ const AddUser: React.FC = () => {
 
       const response = await api.post(API_CONFIG.ADD_USER_ORGANISATION, {
         referralId,
+        roleId,
         emailId: email,
         password,
         confirmPassword,
-        roleId,
       });
-      if (response.status > 200 && response.status < 300) {
-        localStorage.setItem("token", response.data?.data?.token);
+      if (response.status >= 200 && response.status < 300) {
+        localStorage.setItem("token", response.data?.token);
         toast.success("Sign Up successful!");
 
         const token = localStorage.getItem("token");
@@ -84,9 +85,22 @@ const AddUser: React.FC = () => {
     }
   };
 
+  const verifyToken = (token: string) => {
+    try {
+      const decoded = jwtDecode(token);
+      if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.log("error in verifying token", error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
+    if (token && verifyToken(token)) {
       router.push("/dashboard");
     }
     if (!referralId) {
@@ -95,7 +109,7 @@ const AddUser: React.FC = () => {
     if (!roleId) {
       setError("Role in company not defined");
     }
-  });
+  }, [roleId, referralId, router]);
 
   return (
     <div className="login-container">

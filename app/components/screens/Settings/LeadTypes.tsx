@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-const { toast, ToastContainer } = require("react-toastify");
+import { toast, ToastContainer } from "react-toastify";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 
@@ -40,13 +40,13 @@ export function LeadTypes() {
     setLeadTypeNameError("");
   };
 
-  //---------------------------------get all lead types-----------------------------------
+  //---------------------------------get all lead types by organisationId-----------------------------------
   const getLeadTypes = async () => {
     try {
       setLoading(true);
       const response = await api.post(API_CONFIG.GET_LEAD_TYPE, {});
-      if (response.data) {
-        setLeadTypes(response.data.data);
+      if (response.data && response.data.LeadTypes) {
+        setLeadTypes(response.data.LeadTypes);
       }
     } catch (error) {
       console.log("error in fetching lead types", error);
@@ -63,7 +63,11 @@ export function LeadTypes() {
       const response = await api.post(API_CONFIG.ADD_LEAD_TYPE, {
         leadTypeName,
       });
-      toast.success("added lead type");
+      if (response.status >= 200 && response.status < 300) {
+        toast.success("added lead type");
+      } else {
+        toast.error("failed to add lead type");
+      }
 
       setTimeout(() => {
         resetVariables();
@@ -90,7 +94,11 @@ export function LeadTypes() {
         id: updateId,
         leadTypeName,
       });
-      toast.success("updated lead type");
+      if (response.status >= 200 && response.status < 300) {
+        toast.success("updated lead type");
+      } else {
+        toast.error("failed to update lead type");
+      }
 
       setTimeout(() => {
         setProcessing(false);
@@ -102,26 +110,6 @@ export function LeadTypes() {
     } catch (error) {
       console.log("error in updating lead type", error);
       toast.error("Lead Type not updated");
-      setTimeout(() => {
-        setProcessing(false);
-      }, 600);
-    }
-  };
-  //---------------------------------------------delete lead type---------------------------------
-  const deleteLeadTypes = async (leadId: number) => {
-    try {
-      setProcessing(true);
-      const response = await api.post(API_CONFIG.DELETE_LEAD_TYPE, {
-        id: leadId,
-      });
-      toast.success("deleted lead type");
-      setTimeout(() => {
-        setProcessing(false);
-        getLeadTypes();
-      }, 600);
-    } catch (error) {
-      console.log("error in deleting lead type", error);
-      toast.error("Lead Type not deleted");
       setTimeout(() => {
         setProcessing(false);
       }, 600);
@@ -141,7 +129,7 @@ export function LeadTypes() {
   }
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center">
       {/*-----------------------------display lead type-----------------------------*/}
       {activeLeadTypeTab === "displayLeadType" && (
         <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4">
@@ -158,39 +146,53 @@ export function LeadTypes() {
           </h2>
           <ToastContainer />
 
-          {leadTypes.length > 0 ? (
-            leadTypes.map((leadType: LeadType) => (
-              <div key={leadType.id}>
-                {leadType.id}: {leadType.leadTypeName}
-                {processing ? (
-                  <button className="mt-6 bg-yellow-100  text-black font-semibold py-2 px-4 rounded">
-                    wait...
-                  </button>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-md">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border-b">ID</th>
+                  <th className="py-2 px-4 border-b">Name</th>
+                  <th className="py-2 px-4 border-b">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leadTypes.length > 0 ? (
+                  leadTypes.map((leadType: LeadType) => (
+                    <tr key={leadType.id} className="hover:bg-gray-50">
+                      <td className="py-2 px-4 border-b">{leadType.id}</td>
+                      <td className="py-2 px-4 border-b">
+                        {leadType.leadTypeName}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {processing ? (
+                          <button className="mt-6 bg-yellow-100  text-black font-semibold py-2 px-4 rounded">
+                            wait...
+                          </button>
+                        ) : (
+                          <span>
+                            <button
+                              onClick={() => {
+                                setUpdateId(leadType.id);
+                                setLeadTypeName(leadType.leadTypeName);
+                                setActiveLeadTypeTab("updateLeadType");
+                              }}
+                              className="mt-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded"
+                            >
+                              Update
+                            </button>
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
                 ) : (
-                  <span>
-                    <button
-                      onClick={() => deleteLeadTypes(leadType.id)}
-                      className="m-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-1 rounded"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => {
-                        setUpdateId(leadType.id);
-                        setLeadTypeName(leadType.leadTypeName);
-                        setActiveLeadTypeTab("updateLeadType");
-                      }}
-                      className="mt-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded"
-                    >
-                      Update
-                    </button>
-                  </span>
+                  <tr>
+                    <td>No lead Types found</td>
+                  </tr>
                 )}
-              </div>
-            ))
-          ) : (
-            <div>No lead Types found</div>
-          )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

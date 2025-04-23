@@ -31,24 +31,24 @@ export function SignIn({ onSignUpClick }: SignInProps) {
         password,
       });
 
-      console.log("Sign In successful", response.data?.data?.token);
-      localStorage.setItem("token", response.data?.data?.token);
+      if (response.status >= 200 && response.status < 300) {
+        localStorage.setItem("token", response.data?.token);
+        toast.success("Signin successful!");
 
-      toast.success("Sign In successful!");
-
-      const token = localStorage.getItem("token");
-      if (token) {
-        router.push("/dashboard");
+        const token = localStorage.getItem("token");
+        if (token) {
+          router.push("/dashboard");
+        }
+      } else {
+        toast.error("Signin Failed");
       }
     } catch (err: unknown) {
-      console.error("Sign In failed", err);
       const apiError = err as ApiErrorResponse;
       if (apiError.response?.data?.message) {
         setError(apiError.response.data.message);
       } else {
         setError("SignIn failed. Please try again.");
       }
-      console.error("SignIn failed", err);
       toast.error(error);
     }
   };

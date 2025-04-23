@@ -52,7 +52,7 @@ export function OrganisationProfile() {
     return isValid;
   };
 
-  //-----------------------------------Update profile data------------------------------------------------
+  //-----------------------------------Update Organisattion profile data------------------------------------------------
   const updateData = async () => {
     resetErrors();
 
@@ -64,7 +64,7 @@ export function OrganisationProfile() {
         const response = await api.post(
           API_CONFIG.UPDATE_ORGANISATION_PROFILE,
           {
-            organisationName,
+            name: organisationName,
             country,
             state,
             city,
@@ -89,9 +89,9 @@ export function OrganisationProfile() {
           API_CONFIG.GET_ORGANISATION_PROFILE,
           {}
         );
-        if (response.data.data && Object.keys(response.data.data).length > 0) {
-          const profile = response.data.data;
-          setOrganisationName(profile.organisationName || "");
+        if (response.data && Object.keys(response.data).length > 0) {
+          const profile = response.data;
+          setOrganisationName(profile.name || "");
           setCountry(profile.country || "");
           setState(profile.state || "");
           setCity(profile.city || "");

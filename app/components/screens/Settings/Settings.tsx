@@ -6,7 +6,11 @@ import { LeadTypes } from "./LeadTypes";
 import { OrganisationProfile } from "./OrganisationProfile";
 import { Users } from "./Users";
 import { LeadSources } from "./LeadSources";
-export function Settings() {
+
+interface Props {
+  roleId: number | null;
+}
+export function Settings({ roleId }: Props) {
   const [activeSetting, setActiveSetting] = useState("profile");
 
   return (
@@ -19,43 +23,55 @@ export function Settings() {
       </button>
 
       <button
-        onClick={() => setActiveSetting("organisationProfile")}
-        style={{ border: "1px solid black", margin: "auto 5px" }}
-      >
-        Orgainsation Profile
-      </button>
-
-      <button
         onClick={() => setActiveSetting("changePassword")}
         style={{ border: "1px solid black", margin: "auto 5px" }}
       >
         Change Password
       </button>
-      <button
-        onClick={() => setActiveSetting("users")}
-        style={{ border: "1px solid black", margin: "auto 5px" }}
-      >
-        Users
-      </button>
-      <button
-        onClick={() => setActiveSetting("leadTypes")}
-        style={{ border: "1px solid black", margin: "auto 5px" }}
-      >
-        Lead Types
-      </button>
-      <button
-        onClick={() => setActiveSetting("leadSources")}
-        style={{ border: "1px solid black", margin: "auto 5px" }}
-      >
-        LeadSources
-      </button>
+
+      {/* -------------------admin only options ------------------- */}
+      {roleId === 1 && (
+        <>
+          <button
+            onClick={() => setActiveSetting("organisationProfile")}
+            style={{ border: "1px solid black", margin: "auto 5px" }}
+          >
+            Orgainsation Profile
+          </button>
+
+          <button
+            onClick={() => setActiveSetting("users")}
+            style={{ border: "1px solid black", margin: "auto 5px" }}
+          >
+            Users
+          </button>
+          <button
+            onClick={() => setActiveSetting("leadTypes")}
+            style={{ border: "1px solid black", margin: "auto 5px" }}
+          >
+            Lead Types
+          </button>
+          <button
+            onClick={() => setActiveSetting("leadSources")}
+            style={{ border: "1px solid black", margin: "auto 5px" }}
+          >
+            LeadSources
+          </button>
+        </>
+      )}
+
       <div className="flex-1 overflow-auto p-6">
         {activeSetting === "profile" && <Profile />}
-        {activeSetting === "organisationProfile" && <OrganisationProfile />}
         {activeSetting === "changePassword" && <UpdatePassword />}
-        {activeSetting === "users" && <Users />}
-        {activeSetting === "leadTypes" && <LeadTypes />}
-        {activeSetting === "leadSources" && <LeadSources />}
+        {/*---------------- admin only tabs---------------- */}
+        {roleId === 1 && (
+          <>
+            {activeSetting === "organisationProfile" && <OrganisationProfile />}
+            {activeSetting === "users" && <Users />}
+            {activeSetting === "leadTypes" && <LeadTypes />}
+            {activeSetting === "leadSources" && <LeadSources />}
+          </>
+        )}
       </div>
     </div>
   );

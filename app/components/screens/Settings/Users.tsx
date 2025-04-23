@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-const { toast, ToastContainer } = require("react-toastify");
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 
@@ -9,19 +10,33 @@ interface User {
   roleId: number;
   email: string;
   role: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface UserOrgData {
+  userId: number;
+  roleId: number;
+  User?: {
+    emailId: string;
+    firstName: string;
+    lastName: string;
+  };
+  Role?: {
+    role: string;
+  };
 }
 
 export function Users() {
   const [activeUserTab, setActiveUserTab] = useState("displayUser");
 
   const [users, setUsers] = useState<User[]>([]);
+
   const [email, setEmail] = useState("");
   const [roleId, setRoleId] = useState(-1);
   const [updateId, setUpdateId] = useState(0);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-
-  const [referralLink, setReferralLink] = useState("");
 
   const [emailError, setEmailError] = useState("");
   const [roleError, setRoleError] = useState("");
@@ -58,8 +73,22 @@ export function Users() {
       setLoading(true);
       const response = await api.post(API_CONFIG.GET_ALL_USER_ORGANISATION, {});
 
-      if (response.data.data && response.data.data.length > 0) {
-        setUsers(response.data.data);
+      if (
+        response.data &&
+        response.data.UserOrganisations &&
+        Object.keys(response.data.UserOrganisations).length > 0
+      ) {
+        const userData = response.data.UserOrganisations.map(
+          (userOrg: UserOrgData) => ({
+            userId: userOrg.userId,
+            roleId: userOrg.roleId,
+            email: userOrg.User?.emailId,
+            firstName: userOrg.User?.firstName,
+            lastName: userOrg.User?.lastName,
+            role: userOrg.Role?.role,
+          })
+        );
+        setUsers(userData);
       }
     } catch (error) {
       console.log("error in fetching users", error);
@@ -109,7 +138,9 @@ export function Users() {
         userId: updateId,
         roleId,
       });
-      toast.success("updated users");
+      if (response.status >= 200 && response.status < 300) {
+        toast.success("User updated successfully");
+      }
 
       setTimeout(() => {
         setProcessing(false);
@@ -131,8 +162,9 @@ export function Users() {
     try {
       setProcessing(true);
       // const response = await api.post(API_CONFIG.Delete_, {
-      //   id: leadId,
+      //   id: userId,
       // });
+      console.log(userId);
       toast.success("deleted users");
       setTimeout(() => {
         setProcessing(false);
@@ -160,7 +192,7 @@ export function Users() {
   }
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center">
       {/*-----------------------------display users-----------------------------*/}
       {activeUserTab === "displayUser" && (
         <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4">
@@ -176,51 +208,57 @@ export function Users() {
             </button>
           </h2>
           <ToastContainer />
-          <h1 className="font-semibold">
-            email
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; role
-            <hr></hr>
-          </h1>
-
-          {users.length > 0 ? (
-            users.map((user: User) => (
-              <div key={user.userId}>
-                {user.email}
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{" "}
-                {user.role}
-                <br></br>
-                {processing ? (
-                  <button className="mt-6 bg-yellow-400  text-black font-semibold py-2 px-4 rounded">
-                    wait...
-                  </button>
-                ) : (
-                  <span>
-                    <button
-                      onClick={() => deleteUsers(user.userId)}
-                      className="m-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-1 rounded"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => {
-                        setUpdateId(user.userId);
-                        setRoleId(user.roleId);
-                        setActiveUserTab("updateUser");
-                      }}
-                      className="mt-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded"
-                    >
-                      Update
-                    </button>
-                    <hr></hr>
-                  </span>
-                )}
-              </div>
-            ))
-          ) : (
-            <div>No Users found</div>
-          )}
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-md">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="py-2 px-4 border-b">Email</th>
+                  <th className="py-2 px-4 border-b">Role</th>
+                  <th className="py-2 px-4 border-b">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.userId} className="hover:bg-gray-50">
+                    <td className="py-2 px-4 border-b">{user.email}</td>
+                    <td className="py-2 px-4 border-b">{user.role}</td>
+                    <td className="py-2 px-4 border-b">
+                      {user.roleId === 1 ? (
+                        <p>_</p>
+                      ) : (
+                        <>
+                          {processing ? (
+                            <button className="mt-2 bg-yellow-400 text-black font-semibold py-2 px-4 rounded">
+                              wait...
+                            </button>
+                          ) : (
+                            <span>
+                              <button
+                                onClick={() => deleteUsers(user.userId)}
+                                className="m-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-1 rounded"
+                              >
+                                Delete
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setUpdateId(user.userId);
+                                  setRoleId(user.roleId);
+                                  setActiveUserTab("updateUser");
+                                }}
+                                className="mt-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded"
+                              >
+                                Update
+                              </button>
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -255,7 +293,6 @@ export function Users() {
               onChange={(e) => setRoleId(parseInt(e.target.value))}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             >
-              <option value="1">admin</option>
               <option value="2">manager</option>
               <option value="3">employee</option>
             </select>
@@ -322,12 +359,10 @@ export function Users() {
             >
               <option>select option</option>
               <option value="2">manager</option>
-              <option value="1">admin</option>
               <option value="3">employee</option>
             </select>
             {roleError && <p className="text-red-500 text-sm">{roleError}</p>}
           </div>
-          <div>{referralLink && <div>referral link: {referralLink}</div>}</div>
 
           {processing ? (
             <button className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded w-full">
