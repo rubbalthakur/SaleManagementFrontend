@@ -32,14 +32,14 @@ export function Users() {
 
   const [users, setUsers] = useState<User[]>([]);
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState<string>("");
   const [roleId, setRoleId] = useState(-1);
   const [updateId, setUpdateId] = useState(0);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
-  const [emailError, setEmailError] = useState("");
-  const [roleError, setRoleError] = useState("");
+  const [emailError, setEmailError] = useState<string>("");
+  const [roleError, setRoleError] = useState<string>("");
 
   //-----------------------validations-----------------------------------
   const isValid = () => {

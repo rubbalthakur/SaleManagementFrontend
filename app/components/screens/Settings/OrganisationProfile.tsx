@@ -7,15 +7,16 @@ import { API_CONFIG } from "@/config/api";
 
 export function OrganisationProfile() {
   const [loading, setLoading] = useState(true);
-  const [organisationName, setOrganisationName] = useState("");
-  const [country, setCountry] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
+  const [organisationName, setOrganisationName] = useState<string>("");
+  const [country, setCountry] = useState<string>("");
+  const [state, setState] = useState<string>("");
+  const [city, setCity] = useState<string>("");
 
-  const [organisationNameError, setOrganisationNameError] = useState("");
-  const [countryError, setCountryError] = useState("");
-  const [stateError, setStateError] = useState("");
-  const [cityError, setCityError] = useState("");
+  const [organisationNameError, setOrganisationNameError] =
+    useState<string>("");
+  const [countryError, setCountryError] = useState<string>("");
+  const [stateError, setStateError] = useState<string>("");
+  const [cityError, setCityError] = useState<string>("");
 
   //----------------------------------------------reset error values------------------------------------
   const resetErrors = () => {

@@ -62,8 +62,7 @@ export function Dashboard({ roleId }: Props) {
         {}
       );
       if (
-        response.data &&
-        response.data.Leads &&
+        response?.data?.Leads &&
         Object.keys(response.data.Leads).length > 0
       ) {
         const leadData: Lead[] = response.data.Leads.map((leadUser: Lead) => ({

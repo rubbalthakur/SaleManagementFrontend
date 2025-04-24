@@ -14,12 +14,12 @@ export function LeadSources() {
     useState("displayLeadSource");
 
   const [leadSources, setLeadSources] = useState<LeadSource[]>([]);
-  const [leadSourceName, setLeadSourceName] = useState("");
+  const [leadSourceName, setLeadSourceName] = useState<string>("");
   const [updateId, setUpdateId] = useState(0);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
-  const [leadSourceNameError, setLeadSourceNameError] = useState("");
+  const [leadSourceNameError, setLeadSourceNameError] = useState<string>("");
 
   //-----------------------validations-----------------------------------
   const isValid = () => {

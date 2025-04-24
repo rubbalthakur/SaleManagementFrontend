@@ -100,30 +100,30 @@ export function AdminLeads({ loggedInUserId }: Props) {
   const [leadTypes, setLeadTypes] = useState<LeadType[]>([]);
 
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
-  const [filterLeadType, setFilterLeadType] = useState("");
-  const [filterLeadSource, setFilterLeadSource] = useState("");
-  const [filterUser, setFilterUser] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
+  const [filterLeadType, setFilterLeadType] = useState<string>("");
+  const [filterLeadSource, setFilterLeadSource] = useState<string>("");
+  const [filterUser, setFilterUser] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState<string>("");
 
-  const [employeeId, setEmployeeId] = useState("");
-  const [leadTypeId, setLeadTypeId] = useState("");
-  const [leadSourceId, setLeadSourceId] = useState("");
-  const [status, setStatus] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedLeadId, setSelectedLeadId] = useState("");
+  const [employeeId, setEmployeeId] = useState<string>("");
+  const [leadTypeId, setLeadTypeId] = useState<string>("");
+  const [leadSourceId, setLeadSourceId] = useState<string>("");
+  const [status, setStatus] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [selectedLeadId, setSelectedLeadId] = useState<string>("");
 
   const [leadMessages, setLeadMessages] = useState<LeadMessage[] | []>([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState<string>("");
 
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
-  const [descriptionError, setDescriptionError] = useState("");
-  const [employeeIdError, setEmployeeIdError] = useState("");
-  const [leadSourceIdError, setLeadSourceIdError] = useState("");
-  const [leadTypeIdError, setLeadTypeIdError] = useState("");
-  const [statusError, setStatusError] = useState("");
-  const [newMessageError, setNewMessageError] = useState("");
+  const [descriptionError, setDescriptionError] = useState<string>("");
+  const [employeeIdError, setEmployeeIdError] = useState<string>("");
+  const [leadSourceIdError, setLeadSourceIdError] = useState<string>("");
+  const [leadTypeIdError, setLeadTypeIdError] = useState<string>("");
+  const [statusError, setStatusError] = useState<string>("");
+  const [newMessageError, setNewMessageError] = useState<string>("");
 
   //-----------------------validations-----------------------------------
   const isValid = () => {

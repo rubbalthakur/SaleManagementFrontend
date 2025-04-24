@@ -22,26 +22,29 @@ export function Client() {
   >("displayClient");
 
   const [allClients, setAllClients] = useState<Client[]>([]);
+  const [filteredClients, setFilteredClients] = useState<Client[]>([]);
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [emailId, setEmailId] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [country, setCountry] = useState("");
-  const [contact, setContact] = useState("");
-  const [selectedClientId, setSelectedClientId] = useState("");
+  const [filterClient, setFilterClient] = useState<string>("");
+
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [emailId, setEmailId] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+  const [state, setState] = useState<string>("");
+  const [country, setCountry] = useState<string>("");
+  const [contact, setContact] = useState<string>("");
+  const [selectedClientId, setSelectedClientId] = useState<string>("");
 
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
-  const [firstNameError, setFirstNameError] = useState("");
-  const [lastNameError, setLastNameError] = useState("");
-  const [emailIdError, setEmailIdError] = useState("");
-  const [cityError, setCityError] = useState("");
-  const [stateError, setStateError] = useState("");
-  const [countryError, setCountryError] = useState("");
-  const [contactError, setContactError] = useState("");
+  const [firstNameError, setFirstNameError] = useState<string>("");
+  const [lastNameError, setLastNameError] = useState<string>("");
+  const [emailIdError, setEmailIdError] = useState<string>("");
+  const [cityError, setCityError] = useState<string>("");
+  const [stateError, setStateError] = useState<string>("");
+  const [countryError, setCountryError] = useState<string>("");
+  const [contactError, setContactError] = useState<string>("");
 
   //-----------------------validations-----------------------------------
   const isValid = () => {
@@ -131,6 +134,7 @@ export function Client() {
           })
         );
         setAllClients(leadData);
+        setFilteredClients(leadData);
       }
     } catch (error) {
       console.log("error in fetching clients", error);
@@ -231,9 +235,25 @@ export function Client() {
     }
   };
 
+  const handleFilterChange = (filterType: string, value: string) => {
+    if (filterType === "email") {
+      setFilterClient(value);
+    }
+  };
+
   useEffect(() => {
     getClients();
   }, []);
+
+  useEffect(() => {
+    let filtered = [...allClients];
+    if (filterClient) {
+      filtered = filtered.filter(
+        (client) => client.id.toString() === filterClient
+      );
+    }
+    setFilteredClients(filtered);
+  }, [allClients, filterClient]);
 
   if (loading) {
     return (
@@ -248,18 +268,33 @@ export function Client() {
       {/*---------------------------------------display client-------------------------------------------------*/}
       {activeClientTab === "displayClient" && (
         <div className="border rounded-lg shadow-md p-8 w-full mx-4">
-          <h2 className="text-2xl font-semibold mb-4 flex items-center justify-between">
+          <h2 className="text-2xl font-semibold mb-4">
             {" "}
             Clients{" "}
-            <button
-              onClick={() => {
-                setActiveClientTab("addClient");
-              }}
-              className="mt-6 ml-19  hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded text-base"
-              style={{ border: "1px solid black " }}
-            >
-              Add Client
-            </button>
+            <div className="flex items-center space-x-4">
+              {/* -------------filter by email-------------------- */}
+              <select
+                value={filterClient}
+                onChange={(e) => handleFilterChange("email", e.target.value)}
+                className="mt-2 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              >
+                <option value="">Filter by email</option>
+                {allClients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.emailId}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={() => {
+                  setActiveClientTab("addClient");
+                }}
+                className="mt-6 ml-19  hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded text-base"
+                style={{ border: "1px solid black " }}
+              >
+                Add Client
+              </button>
+            </div>
           </h2>
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-md">
@@ -276,7 +311,7 @@ export function Client() {
                 </tr>
               </thead>
               <tbody>
-                {allClients.map((client) => (
+                {filteredClients.map((client) => (
                   <tr key={client.id} className="hover:bg-gray-50">
                     <td className="py-2 px-4 border-b">{client.id}</td>
                     <td className="py-2 px-4 border-b">{client.emailId}</td>

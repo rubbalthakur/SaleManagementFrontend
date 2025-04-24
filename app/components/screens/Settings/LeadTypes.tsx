@@ -13,12 +13,12 @@ export function LeadTypes() {
   const [activeLeadTypeTab, setActiveLeadTypeTab] = useState("displayLeadType");
 
   const [leadTypes, setLeadTypes] = useState<LeadType[]>([]);
-  const [leadTypeName, setLeadTypeName] = useState("");
+  const [leadTypeName, setLeadTypeName] = useState<string>("");
   const [updateId, setUpdateId] = useState(0);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
-  const [leadTypeNameError, setLeadTypeNameError] = useState("");
+  const [leadTypeNameError, setLeadTypeNameError] = useState<string>("");
 
   //-----------------------validations-----------------------------------
   const isValid = () => {

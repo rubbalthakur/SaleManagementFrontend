@@ -6,10 +6,10 @@ import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 
 export function UpdatePassword() {
-  const [oldPassword, setOldPassword] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [oldPasswordError, setOldPasswordError] = useState("");
+  const [oldPassword, setOldPassword] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [passwordError, setPasswordError] = useState<string>("");
+  const [oldPasswordError, setOldPasswordError] = useState<string>("");
 
   const resetErrors = () => {
     setPasswordError("");

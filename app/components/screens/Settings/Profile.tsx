@@ -7,19 +7,19 @@ import { API_CONFIG } from "@/config/api";
 
 export function Profile() {
   const [loading, setLoading] = useState(true);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
-  const [country, setCountry] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [contactNumber, setContactNumber] = useState<string>("");
+  const [country, setCountry] = useState<string>("");
+  const [state, setState] = useState<string>("");
+  const [city, setCity] = useState<string>("");
 
-  const [firstNameError, setFirstNameError] = useState("");
-  const [lastNameError, setLastNameError] = useState("");
-  const [contactNumberError, setContactNumberError] = useState("");
-  const [countryError, setCountryError] = useState("");
-  const [stateError, setStateError] = useState("");
-  const [cityError, setCityError] = useState("");
+  const [firstNameError, setFirstNameError] = useState<string>("");
+  const [lastNameError, setLastNameError] = useState<string>("");
+  const [contactNumberError, setContactNumberError] = useState<string>("");
+  const [countryError, setCountryError] = useState<string>("");
+  const [stateError, setStateError] = useState<string>("");
+  const [cityError, setCityError] = useState<string>("");
 
   //----------------------------------------------reset error values------------------------------------
   const resetErrors = () => {
