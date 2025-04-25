@@ -917,6 +917,7 @@ export function UserLeads({ loggedInUserId }: Props) {
             </button>
           ) : (
             <button
+              disabled={processing}
               onClick={() => {
                 resetError();
                 handleAddLead(leadTypeId, leadSourceId, status, description);

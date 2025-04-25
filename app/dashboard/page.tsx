@@ -68,7 +68,7 @@ const SalesFunnelDashboard: React.FC = () => {
           <Leads loggedInUserId={loggedInUserId} roleId={roleId} />
         )}
         {activeTab === "clients" && <Client />}
-        {activeTab === "analytics" && <Analytics />}
+        {activeTab === "analytics" && <Analytics roleId={roleId} />}
         {activeTab === "settings" && <Settings roleId={roleId} />}
       </div>
     </div>

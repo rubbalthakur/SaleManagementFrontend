@@ -120,7 +120,7 @@ export function Client() {
         response.data?.OrganisationProfile?.Clients &&
         Object.keys(response.data.OrganisationProfile.Clients).length > 0
       ) {
-        const leadData = response.data.OrganisationProfile.Clients.map(
+        const clientData = response.data.OrganisationProfile.Clients.map(
           (client: Client) => ({
             id: client.id,
             organisationId: client.organisationId,
@@ -133,8 +133,8 @@ export function Client() {
             contact: client.contact,
           })
         );
-        setAllClients(leadData);
-        setFilteredClients(leadData);
+        setAllClients(clientData);
+        setFilteredClients(clientData);
       }
     } catch (error) {
       console.log("error in fetching clients", error);
@@ -202,7 +202,7 @@ export function Client() {
     try {
       if (!isValid()) return;
       setProcessing(true);
-      const response = await api.post(API_CONFIG.UPDATE_LEAD, {
+      const response = await api.post(API_CONFIG.UPDATE_CLIENT, {
         id: parseInt(selectedClientId),
         firstName,
         lastName,

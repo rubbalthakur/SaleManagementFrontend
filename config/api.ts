@@ -47,4 +47,9 @@ export const API_CONFIG = {
   GET_CLIENT_BY_ID: "/member/getClientById",
   ADD_CLIENT: "/member/addClient",
   UPDATE_CLIENT: "/member/updateClient",
+
+  GET_ALL_PROPOSALS_BY_ORGANISATION: "/member/getAllProposalForOrganisation",
+  GET_ALL_PROPOSALS_BY_USER: "/member/getAllProposalForUser",
+  ADD_PROPOSAL: "/member/addProposal",
+  UPDATE_PROPOSAL: "/member/updateProposal",
 };

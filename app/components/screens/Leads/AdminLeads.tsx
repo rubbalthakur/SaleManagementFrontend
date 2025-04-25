@@ -1018,6 +1018,7 @@ export function AdminLeads({ loggedInUserId }: Props) {
             </button>
           ) : (
             <button
+              disabled={processing}
               onClick={() => {
                 resetError();
                 addLead(
