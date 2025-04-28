@@ -5,7 +5,7 @@ import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 
 interface Props {
-  roleId: number;
+  roleId: number | null;
 }
 
 interface Proposal {
@@ -375,6 +375,10 @@ export function Analytics({ roleId }: Props) {
     }
     setFilteredProposals(filtered);
   }, [allProposals, filterClient]);
+
+  if (!roleId) {
+    return <h1>Role not found</h1>;
+  }
 
   if (loading) {
     return (
