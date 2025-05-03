@@ -1,12 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store/store";
+
 import { toast, ToastContainer } from "react-toastify";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
-
-interface Props {
-  roleId: number | null;
-}
 
 interface Proposal {
   id: number;
@@ -20,6 +19,7 @@ interface Proposal {
   lastName: string;
   leadDescription: string;
 }
+
 interface ProposalClient {
   id: number;
   organisationId: number;
@@ -71,7 +71,9 @@ interface Lead {
   };
 }
 
-export function Analytics({ roleId }: Props) {
+export function Analytics() {
+  const roleId = useSelector((state: RootState) => state.auth.roleId);
+
   const [activeProposalTab, setActiveProposalTab] = useState<
     "displayProposal" | "addProposal" | "updateProposal"
   >("displayProposal");

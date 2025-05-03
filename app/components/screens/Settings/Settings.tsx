@@ -1,5 +1,8 @@
 "use client";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store/store";
+
 import { Profile } from "./Profile";
 import { UpdatePassword } from "./UpdatePassword";
 import { LeadTypes } from "./LeadTypes";
@@ -7,10 +10,9 @@ import { OrganisationProfile } from "./OrganisationProfile";
 import { Users } from "./Users";
 import { LeadSources } from "./LeadSources";
 
-interface Props {
-  roleId: number | null;
-}
-export function Settings({ roleId }: Props) {
+export function Settings() {
+  const roleId = useSelector((state: RootState) => state.auth.roleId);
+
   const [activeSetting, setActiveSetting] = useState("profile");
 
   return (

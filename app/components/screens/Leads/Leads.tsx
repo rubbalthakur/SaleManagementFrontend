@@ -2,23 +2,18 @@
 import { AdminLeads } from "./AdminLeads";
 import { UserLeads } from "./UserLeads";
 
-interface Props {
-  loggedInUserId: number | null;
-  roleId: number | null;
-}
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store/store";
 
-export function Leads({ loggedInUserId, roleId }: Props) {
+export function Leads() {
+  const loggedInUserId = useSelector(
+    (state: RootState) => state.auth.loggedInUserId
+  );
+  const roleId = useSelector((state: RootState) => state.auth.roleId);
+
   if (!loggedInUserId || !roleId) {
     return <div>Unauthorized</div>;
   }
 
-  return (
-    <>
-      {roleId === 1 ? (
-        <AdminLeads loggedInUserId={loggedInUserId} />
-      ) : (
-        <UserLeads loggedInUserId={loggedInUserId} />
-      )}
-    </>
-  );
+  return <>{roleId === 1 ? <AdminLeads /> : <UserLeads />}</>;
 }

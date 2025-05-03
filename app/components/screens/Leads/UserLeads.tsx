@@ -1,27 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/app/store/store";
+import { fetchLeadsForUser } from "@/app/store/features/leads/leadSlice";
+import { Lead } from "@/types/Lead";
+
 import { toast, ToastContainer } from "react-toastify";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
-
-interface Props {
-  loggedInUserId: number | null;
-}
-
-interface Lead {
-  id: number;
-  userId: number;
-  organisationId: number;
-  leadTypeId: number;
-  leadSourceId: number;
-  firstName: string;
-  lastName: string;
-  emailId: string;
-  description: string;
-  status: string;
-  leadTypeName: string;
-  leadSourceName: string;
-}
 
 interface LeadMessage {
   id: number;
@@ -36,27 +22,6 @@ interface LeadMessage {
   };
 }
 
-interface LeadUser {
-  id: number;
-  userId: number;
-  organisationId: number;
-  leadTypeId: number;
-  leadSourceId: number;
-  status: string;
-  description: string;
-  User: {
-    emailId: string;
-    firstName: string;
-    lastName: string;
-  };
-  LeadType: {
-    leadTypeName: string;
-  };
-  LeadSource: {
-    leadSourceName: string;
-  };
-}
-
 interface LeadSource {
   id: number;
   leadSourceName: string;
@@ -67,12 +32,19 @@ interface LeadType {
   leadTypeName: string;
 }
 
-export function UserLeads({ loggedInUserId }: Props) {
+export function UserLeads() {
+  const dispatch = useDispatch<AppDispatch>();
+  const loggedInUserId = useSelector(
+    (state: RootState) => state.auth.loggedInUserId
+  );
+  const loading = useSelector((state: RootState) => state.leads.loading);
+  const error = useSelector((state: RootState) => state.leads.error);
+
   const [activeLeadTab, setActiveLeadTab] = useState<
     "displayLead" | "addLead" | "updateLead" | "viewLead"
   >("displayLead");
 
-  const [allLeads, setAllLeads] = useState<Lead[] | []>([]);
+  const allLeads = useSelector((state: RootState) => state.leads.leads);
   const [leadSources, setLeadSources] = useState<LeadSource[]>([]);
   const [leadTypes, setLeadTypes] = useState<LeadType[]>([]);
 
@@ -95,7 +67,7 @@ export function UserLeads({ loggedInUserId }: Props) {
   const [leadMessages, setLeadMessages] = useState<LeadMessage[] | []>([]);
   const [newMessage, setNewMessage] = useState<string>("");
 
-  const [loading, setLoading] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(true);
   const [processing, setProcessing] = useState(false);
 
   const [descriptionError, setDescriptionError] = useState<string>("");
@@ -150,40 +122,6 @@ export function UserLeads({ loggedInUserId }: Props) {
     setNewMessageError("");
   };
 
-  //---------------------------------get allLeads By userId-----------------------------------
-  const fetchLeadsForUser = async () => {
-    try {
-      setLoading(true);
-      const response = await api.post(API_CONFIG.GET_LEAD_BY_USER, {});
-      if (response.data && response.data.length > 0) {
-        const leadData = response.data.map((leadUser: LeadUser) => ({
-          id: leadUser.id,
-          userId: leadUser.userId,
-          organisationId: leadUser.organisationId,
-          leadSourceId: leadUser.leadSourceId,
-          leadTypeId: leadUser.leadTypeId,
-          status: leadUser.status,
-          description: leadUser.description,
-          firstName: leadUser.User.firstName,
-          lastName: leadUser.User.lastName,
-          emailId: leadUser.User.emailId,
-          leadSourceName: leadUser.LeadSource.leadSourceName,
-          leadTypeName: leadUser.LeadType.leadTypeName,
-        }));
-        setAllLeads(leadData);
-        setFilteredLeads(leadData);
-        setFirstName(leadData[0].firstName || "");
-        setLastName(leadData[0].lastName || "");
-        setEmail(leadData[0].emailId || "");
-        setEmployeeId(leadData[0].userId || null);
-      }
-    } catch (error) {
-      console.log("error in fetching leads", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   //---------------------------------add new lead-----------------------------------
   const handleAddLead = async (
     leadTypeId: string,
@@ -213,7 +151,7 @@ export function UserLeads({ loggedInUserId }: Props) {
         resetError();
         setProcessing(false);
         setActiveLeadTab("displayLead");
-        fetchLeadsForUser();
+        dispatch(fetchLeadsForUser());
       }, 600);
     } catch (error) {
       console.log("error in adding lead", error);
@@ -255,9 +193,9 @@ export function UserLeads({ loggedInUserId }: Props) {
         resetError();
         setProcessing(false);
         setActiveLeadTab("displayLead");
-        fetchLeadsForUser();
+        dispatch(fetchLeadsForUser());
       }, 600);
-    } catch (error) {
+    } catch (error: any) {
       console.log("error in updating lead", error);
       toast.error("lead not updated");
       setTimeout(() => {
@@ -269,7 +207,7 @@ export function UserLeads({ loggedInUserId }: Props) {
   //----------------------------fetch Lead Messages----------------------------------
   const fetchLeadMessages = async (leadId: string) => {
     try {
-      setLoading(true);
+      setLoadingMessages(true);
       const response = await api.post(API_CONFIG.GET_LEAD_MESSAGES, {
         leadId: parseInt(leadId),
       });
@@ -279,7 +217,7 @@ export function UserLeads({ loggedInUserId }: Props) {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      setLoadingMessages(false);
     }
   };
 
@@ -317,30 +255,24 @@ export function UserLeads({ loggedInUserId }: Props) {
   //---------------------------------get all lead sources-----------------------------------
   const getLeadSources = async () => {
     try {
-      setLoading(true);
       const response = await api.post(API_CONFIG.GET_LEAD_SOURCE, {});
-      if (response.data && response.data.LeadSources) {
+      if (response?.data?.LeadSources) {
         setLeadSources(response.data.LeadSources);
       }
     } catch (error) {
       console.log("error in fetching lead sources", error);
-    } finally {
-      setLoading(false);
     }
   };
 
   //---------------------------------get all lead types by organisationId-----------------------------------
   const getLeadTypes = async () => {
     try {
-      setLoading(true);
       const response = await api.post(API_CONFIG.GET_LEAD_TYPE, {});
-      if (response.data && response.data.LeadTypes) {
+      if (response?.data?.LeadTypes) {
         setLeadTypes(response.data.LeadTypes);
       }
     } catch (error) {
       console.log("error in fetching lead types", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -351,10 +283,17 @@ export function UserLeads({ loggedInUserId }: Props) {
   };
 
   useEffect(() => {
-    fetchLeadsForUser();
+    dispatch(fetchLeadsForUser());
     getLeadSources();
     getLeadTypes();
   }, [loggedInUserId]);
+
+  useEffect(() => {
+    setFirstName(allLeads[0]?.firstName || "");
+    setLastName(allLeads[0]?.lastName || "");
+    setEmail(allLeads[0]?.emailId || "");
+    setEmployeeId(allLeads[0]?.userId || null);
+  }, [allLeads]);
 
   const handleFilterChange = (
     filterType: "leadType" | "leadSource" | "status",
@@ -401,10 +340,18 @@ export function UserLeads({ loggedInUserId }: Props) {
     }
   }, [activeLeadTab, selectedLeadId]);
 
-  if (loading) {
+  if (loading && activeLeadTab === "displayLead") {
     return (
       <div className="flex justify-center items-center h-screen">
         Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Error in loading leads
       </div>
     );
   }
@@ -716,10 +663,10 @@ export function UserLeads({ loggedInUserId }: Props) {
 
             <div>
               <h3 className="text-lg font-semibold mb-2">Updates:</h3>
-              {loading ? (
+              {loadingMessages ? (
                 <p>Loading messages...</p>
               ) : leadMessages.length > 0 ? (
-                <ul className="space-y-2">
+                <ul className="space-y-2 overflow-auto max-h-64 pr-2">
                   {leadMessages.map((leadMessage) => {
                     const isCurrentUserMessage =
                       leadMessage.userId === loggedInUserId;

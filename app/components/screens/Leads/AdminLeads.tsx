@@ -1,27 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/app/store/store";
+import { fetchLeadsForAdmin } from "@/app/store/features/leads/leadSlice";
+import { fetchUsersByOrganisation } from "@/app/store/features/users/userSlice";
+import { Lead } from "@/types/Lead";
+
 import { toast, ToastContainer } from "react-toastify";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
-
-interface Props {
-  loggedInUserId: number | null;
-}
-
-interface Lead {
-  id: number;
-  userId: number;
-  organisationId: number;
-  leadTypeId: number;
-  leadSourceId: number;
-  firstName: string;
-  lastName: string;
-  emailId: string;
-  description: string;
-  status: string;
-  leadTypeName: string;
-  leadSourceName: string;
-}
 
 interface LeadMessage {
   id: number;
@@ -36,49 +23,6 @@ interface LeadMessage {
   };
 }
 
-interface LeadUser {
-  id: number;
-  userId: number;
-  organisationId: number;
-  leadTypeId: number;
-  leadSourceId: number;
-  status: string;
-  description: string;
-  User: {
-    emailId: string;
-    firstName: string;
-    lastName: string;
-  };
-  LeadType: {
-    leadTypeName: string;
-  };
-  LeadSource: {
-    leadSourceName: string;
-  };
-}
-
-interface User {
-  userId: number;
-  roleId: number;
-  email: string;
-  role: string;
-  firstName: string;
-  lastName: string;
-}
-
-interface UserOrgData {
-  userId: number;
-  roleId: number;
-  User: {
-    emailId: string;
-    firstName: string;
-    lastName: string;
-  };
-  Role: {
-    role: string;
-  };
-}
-
 interface LeadSource {
   id: number;
   leadSourceName: string;
@@ -89,13 +33,20 @@ interface LeadType {
   leadTypeName: string;
 }
 
-export function AdminLeads({ loggedInUserId }: Props) {
+export function AdminLeads() {
+  const dispatch = useDispatch<AppDispatch>();
+  const loggedInUserId = useSelector(
+    (state: RootState) => state.auth.loggedInUserId
+  );
+  const loading = useSelector((state: RootState) => state.leads.loading);
+  const error = useSelector((state: RootState) => state.leads.error);
+
   const [activeLeadTab, setActiveLeadTab] = useState<
     "displayLead" | "addLead" | "updateLead" | "viewLead"
   >("displayLead");
 
-  const [allLeads, setAllLeads] = useState<Lead[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
+  const allLeads = useSelector((state: RootState) => state.leads.leads);
+  const users = useSelector((state: RootState) => state.users.users);
   const [leadSources, setLeadSources] = useState<LeadSource[]>([]);
   const [leadTypes, setLeadTypes] = useState<LeadType[]>([]);
 
@@ -115,7 +66,7 @@ export function AdminLeads({ loggedInUserId }: Props) {
   const [leadMessages, setLeadMessages] = useState<LeadMessage[] | []>([]);
   const [newMessage, setNewMessage] = useState<string>("");
 
-  const [loading, setLoading] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const [processing, setProcessing] = useState(false);
 
   const [descriptionError, setDescriptionError] = useState<string>("");
@@ -170,43 +121,6 @@ export function AdminLeads({ loggedInUserId }: Props) {
     setNewMessageError("");
   };
 
-  //---------------------------------get all leads-----------------------------------
-  const getLeads = async () => {
-    try {
-      setLoading(true);
-      const response = await api.post(
-        API_CONFIG.GET_ALL_LEAD_BY_ORGANISATION,
-        {}
-      );
-      if (
-        response.data &&
-        response.data.Leads &&
-        Object.keys(response.data.Leads).length > 0
-      ) {
-        const leadData = response.data.Leads.map((leadUser: LeadUser) => ({
-          id: leadUser.id,
-          userId: leadUser.userId,
-          organisationId: leadUser.organisationId,
-          leadSourceId: leadUser.leadSourceId,
-          leadTypeId: leadUser.leadTypeId,
-          status: leadUser.status,
-          description: leadUser.description,
-          firstName: leadUser.User.firstName,
-          lastName: leadUser.User.lastName,
-          emailId: leadUser.User.emailId,
-          leadSourceName: leadUser.LeadSource.leadSourceName,
-          leadTypeName: leadUser.LeadType.leadTypeName,
-        }));
-        setAllLeads(leadData);
-        setFilteredLeads(leadData);
-      }
-    } catch (error) {
-      console.log("error in fetching leads", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   //---------------------------------add new lead-----------------------------------
   const addLead = async (
     employeeId: string,
@@ -237,7 +151,7 @@ export function AdminLeads({ loggedInUserId }: Props) {
         resetError();
         setProcessing(false);
         setActiveLeadTab("displayLead");
-        getLeads();
+        dispatch(fetchLeadsForAdmin());
       }, 600);
     } catch (error) {
       console.log("error in adding lead", error);
@@ -280,7 +194,7 @@ export function AdminLeads({ loggedInUserId }: Props) {
         resetError();
         setProcessing(false);
         setActiveLeadTab("displayLead");
-        getLeads();
+        dispatch(fetchLeadsForAdmin());
       }, 600);
     } catch (error) {
       console.log("error in updating lead", error);
@@ -294,7 +208,7 @@ export function AdminLeads({ loggedInUserId }: Props) {
   //----------------------------fetch Lead Messages----------------------------------
   const fetchLeadMessages = async (leadId: string) => {
     try {
-      setLoading(true);
+      setLoadingMessages(true);
       const response = await api.post(API_CONFIG.GET_LEAD_MESSAGES, {
         leadId: parseInt(leadId),
       });
@@ -304,7 +218,7 @@ export function AdminLeads({ loggedInUserId }: Props) {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      setLoadingMessages(false);
     }
   };
 
@@ -339,62 +253,27 @@ export function AdminLeads({ loggedInUserId }: Props) {
     }
   };
 
-  //--------------------------------------get users by org id------------------------
-  const getUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await api.post(API_CONFIG.GET_ALL_USER_ORGANISATION, {});
-
-      if (
-        response?.data?.UserOrganisations &&
-        Object.keys(response.data.UserOrganisations).length > 0
-      ) {
-        const userData = response.data.UserOrganisations.map(
-          (userOrg: UserOrgData) => ({
-            userId: userOrg.userId,
-            roleId: userOrg.roleId,
-            email: userOrg.User.emailId,
-            firstName: userOrg.User.firstName,
-            lastName: userOrg.User.lastName,
-            role: userOrg.Role.role,
-          })
-        );
-        setUsers(userData);
-      }
-    } catch (error) {
-      console.log("error in fetching users", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   //---------------------------------get all lead sources-----------------------------------
   const getLeadSources = async () => {
     try {
-      setLoading(true);
       const response = await api.post(API_CONFIG.GET_LEAD_SOURCE, {});
-      if (response.data && response.data.LeadSources) {
+      if (response?.data?.LeadSources) {
         setLeadSources(response.data.LeadSources);
       }
     } catch (error) {
       console.log("error in fetching lead sources", error);
-    } finally {
-      setLoading(false);
     }
   };
 
   //---------------------------------get all lead types by organisationId-----------------------------------
   const getLeadTypes = async () => {
     try {
-      setLoading(true);
       const response = await api.post(API_CONFIG.GET_LEAD_TYPE, {});
-      if (response.data && response.data.LeadTypes) {
+      if (response?.data?.LeadTypes) {
         setLeadTypes(response.data.LeadTypes);
       }
     } catch (error) {
       console.log("error in fetching lead types", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -406,8 +285,8 @@ export function AdminLeads({ loggedInUserId }: Props) {
   };
 
   useEffect(() => {
-    getLeads();
-    getUsers();
+    dispatch(fetchLeadsForAdmin());
+    dispatch(fetchUsersByOrganisation());
     getLeadSources();
     getLeadTypes();
   }, []);
@@ -464,10 +343,18 @@ export function AdminLeads({ loggedInUserId }: Props) {
     }
   }, [activeLeadTab, selectedLeadId]);
 
-  if (loading) {
+  if (loading && activeLeadTab === "displayLead") {
     return (
       <div className="flex justify-center items-center h-screen">
         Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Error in loading leads
       </div>
     );
   }
@@ -804,10 +691,10 @@ export function AdminLeads({ loggedInUserId }: Props) {
 
             <div>
               <h3 className="text-lg font-semibold mb-2">Updates:</h3>
-              {loading ? (
+              {loadingMessages ? (
                 <p>Loading messages...</p>
               ) : leadMessages.length > 0 ? (
-                <ul className="space-y-2">
+                <ul className="space-y-2 overflow-auto max-h-64 pr-2">
                   {leadMessages.map((leadMessage) => {
                     const isCurrentUserMessage =
                       leadMessage.userId === loggedInUserId;

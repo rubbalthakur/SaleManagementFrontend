@@ -1,5 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/app/store/store";
+import {
+  fetchLeadsForAdmin,
+  fetchLeadsForUser,
+} from "@/app/store/features/leads/leadSlice";
+import { Lead } from "@/types/Lead";
 import {
   BarChart,
   Bar,
@@ -12,37 +19,19 @@ import {
   Cell,
 } from "recharts";
 import { Card, CardContent } from "../../ui/card";
-import api from "@/app/middleware/authMiddleware";
-import { API_CONFIG } from "@/config/api";
 
-interface Props {
-  roleId: number | null;
-}
+export function Dashboard() {
+  const dispatch = useDispatch<AppDispatch>();
+  const roleId = useSelector((state: RootState) => state.auth.roleId);
+  const allLeads = useSelector((state: RootState) => state.leads.leads);
+  const loading = useSelector((state: RootState) => state.leads.loading);
 
-interface Lead {
-  id: number;
-  userId: number;
-  organisationId: number;
-  leadTypeId: number;
-  leadSourceId: number;
-  firstName: string;
-  lastName: string;
-  emailId: string;
-  description: string;
-  status: string;
-  leadTypeName: string;
-  leadSourceName: string;
-}
-
-export function Dashboard({ roleId }: Props) {
   const [countTotal, setCountTotal] = useState<number>(0);
   const [countNew, setCountNew] = useState<number>(0);
   const [countDiscussion, setCountDiscussion] = useState<number>(0);
   const [countHot, setCountHot] = useState<number>(0);
   const [countHold, setCountHold] = useState<number>(0);
   const [countClosed, setCountClosed] = useState<number>(0);
-
-  const [loading, setLoading] = useState(true);
 
   const COLORS = ["#4f46e5", "#10b981", "#f59e0b"];
   const salesData = [
@@ -53,110 +42,37 @@ export function Dashboard({ roleId }: Props) {
     { stage: "Closed", count: countClosed },
   ];
 
-  //---------------------------------fetch all leads By Organisation-----------------------------------
-  const fetchLeadsByOrganisation = async () => {
-    try {
-      setLoading(true);
-      const response = await api.post(
-        API_CONFIG.GET_ALL_LEAD_BY_ORGANISATION,
-        {}
-      );
-      if (
-        response?.data?.Leads &&
-        Object.keys(response.data.Leads).length > 0
-      ) {
-        const leadData: Lead[] = response.data.Leads.map((leadUser: Lead) => ({
-          id: leadUser.id,
-          userId: leadUser.userId,
-          organisationId: leadUser.organisationId,
-          leadSourceId: leadUser.leadSourceId,
-          leadTypeId: leadUser.leadTypeId,
-          status: leadUser.status,
-          description: leadUser.description,
-        }));
+  useEffect(() => {
+    setCountTotal(allLeads.length);
 
-        setCountTotal(leadData.length);
+    const newCount = allLeads.filter(
+      (lead: Lead) => lead.status === "New"
+    ).length;
+    const discussionCount = allLeads.filter(
+      (lead: Lead) => lead.status === "Discussion"
+    ).length;
+    const hotCount = allLeads.filter(
+      (lead: Lead) => lead.status === "Hot"
+    ).length;
+    const holdCount = allLeads.filter(
+      (lead: Lead) => lead.status === "Hold"
+    ).length;
+    const closedCount = allLeads.filter(
+      (lead: Lead) => lead.status === "Closed"
+    ).length;
 
-        const newCount = leadData.filter(
-          (lead: Lead) => lead.status === "New"
-        ).length;
-        const discussionCount = leadData.filter(
-          (lead: Lead) => lead.status === "Discussion"
-        ).length;
-        const hotCount = leadData.filter(
-          (lead: Lead) => lead.status === "Hot"
-        ).length;
-        const holdCount = leadData.filter(
-          (lead: Lead) => lead.status === "Hold"
-        ).length;
-        const closedCount = leadData.filter(
-          (lead: Lead) => lead.status === "Closed"
-        ).length;
-
-        setCountNew(newCount);
-        setCountDiscussion(discussionCount);
-        setCountHot(hotCount);
-        setCountHold(holdCount);
-        setCountClosed(closedCount);
-      }
-    } catch (error) {
-      console.log("error in fetching leads", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  //---------------------------------get allLeads for user-----------------------------------
-  const fetchLeadsForUser = async () => {
-    try {
-      setLoading(true);
-      const response = await api.post(API_CONFIG.GET_LEAD_BY_USER, {});
-      if (response.data && response.data.length > 0) {
-        const leadData = response.data.map((leadUser: Lead) => ({
-          id: leadUser.id,
-          userId: leadUser.userId,
-          organisationId: leadUser.organisationId,
-          leadSourceId: leadUser.leadSourceId,
-          leadTypeId: leadUser.leadTypeId,
-          status: leadUser.status,
-          description: leadUser.description,
-        }));
-        setCountTotal(leadData.length);
-
-        const newCount = leadData.filter(
-          (lead: Lead) => lead.status === "New"
-        ).length;
-        const discussionCount = leadData.filter(
-          (lead: Lead) => lead.status === "Discussion"
-        ).length;
-        const hotCount = leadData.filter(
-          (lead: Lead) => lead.status === "Hot"
-        ).length;
-        const holdCount = leadData.filter(
-          (lead: Lead) => lead.status === "Hold"
-        ).length;
-        const closedCount = leadData.filter(
-          (lead: Lead) => lead.status === "Closed"
-        ).length;
-
-        setCountNew(newCount);
-        setCountDiscussion(discussionCount);
-        setCountHot(hotCount);
-        setCountHold(holdCount);
-        setCountClosed(closedCount);
-      }
-    } catch (error) {
-      console.log("error in fetching leads", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setCountNew(newCount);
+    setCountDiscussion(discussionCount);
+    setCountHot(hotCount);
+    setCountHold(holdCount);
+    setCountClosed(closedCount);
+  }, [allLeads]);
 
   useEffect(() => {
     if (roleId === 1) {
-      fetchLeadsByOrganisation();
+      dispatch(fetchLeadsForAdmin());
     } else {
-      fetchLeadsForUser();
+      dispatch(fetchLeadsForUser());
     }
   }, [roleId]);
 

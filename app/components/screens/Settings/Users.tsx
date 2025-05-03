@@ -1,41 +1,23 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUsersByOrganisation } from "@/app/store/features/users/userSlice";
+import { RootState, AppDispatch } from "@/app/store/store";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 
-interface User {
-  userId: number;
-  roleId: number;
-  email: string;
-  role: string;
-  firstName: string;
-  lastName: string;
-}
-
-interface UserOrgData {
-  userId: number;
-  roleId: number;
-  User?: {
-    emailId: string;
-    firstName: string;
-    lastName: string;
-  };
-  Role?: {
-    role: string;
-  };
-}
-
 export function Users() {
-  const [activeUserTab, setActiveUserTab] = useState("displayUser");
+  const dispatch = useDispatch<AppDispatch>();
+  const users = useSelector((state: RootState) => state.users.users);
+  const loading = useSelector((state: RootState) => state.users.loading);
 
-  const [users, setUsers] = useState<User[]>([]);
+  const [activeUserTab, setActiveUserTab] = useState("displayUser");
 
   const [email, setEmail] = useState<string>("");
   const [roleId, setRoleId] = useState(-1);
   const [updateId, setUpdateId] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
   const [emailError, setEmailError] = useState<string>("");
@@ -67,36 +49,6 @@ export function Users() {
     setRoleError("");
   };
 
-  //---------------------------------get all users-----------------------------------
-  const getUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await api.post(API_CONFIG.GET_ALL_USER_ORGANISATION, {});
-
-      if (
-        response.data &&
-        response.data.UserOrganisations &&
-        Object.keys(response.data.UserOrganisations).length > 0
-      ) {
-        const userData = response.data.UserOrganisations.map(
-          (userOrg: UserOrgData) => ({
-            userId: userOrg.userId,
-            roleId: userOrg.roleId,
-            email: userOrg.User?.emailId,
-            firstName: userOrg.User?.firstName,
-            lastName: userOrg.User?.lastName,
-            role: userOrg.Role?.role,
-          })
-        );
-        setUsers(userData);
-      }
-    } catch (error) {
-      console.log("error in fetching users", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   //---------------------------------add new users-----------------------------------
   const addUsers = async () => {
     try {
@@ -115,7 +67,7 @@ export function Users() {
         resetError();
         setProcessing(false);
         setActiveUserTab("displayUser");
-        getUsers();
+        dispatch(fetchUsersByOrganisation());
       }, 600);
     } catch (error) {
       console.log("error in adding users", error);
@@ -147,7 +99,7 @@ export function Users() {
         setActiveUserTab("displayUser");
         resetVariables();
         resetError();
-        getUsers();
+        dispatch(fetchUsersByOrganisation());
       }, 600);
     } catch (error) {
       console.log("error in updating users", error);
@@ -157,33 +109,12 @@ export function Users() {
       }, 600);
     }
   };
-  //---------------------------------------------delete users---------------------------------
-  const deleteUsers = async (userId: number) => {
-    try {
-      setProcessing(true);
-      // const response = await api.post(API_CONFIG.Delete_, {
-      //   id: userId,
-      // });
-      console.log(userId);
-      toast.success("deleted users");
-      setTimeout(() => {
-        setProcessing(false);
-        getUsers();
-      }, 600);
-    } catch (error) {
-      console.log("error in deleting users", error);
-      toast.error("Lead Type not deleted");
-      setTimeout(() => {
-        setProcessing(false);
-      }, 600);
-    }
-  };
 
   useEffect(() => {
-    getUsers();
+    dispatch(fetchUsersByOrganisation());
   }, []);
 
-  if (loading) {
+  if (loading && activeUserTab === "displayUser") {
     return (
       <div className="flex justify-center items-center h-screen">
         Loading...
@@ -233,12 +164,6 @@ export function Users() {
                             </button>
                           ) : (
                             <span>
-                              <button
-                                onClick={() => deleteUsers(user.userId)}
-                                className="m-2 bg-yellow-100 hover:bg-yellow-500 text-black font-semibold py-2 px-1 rounded"
-                              >
-                                Delete
-                              </button>
                               <button
                                 onClick={() => {
                                   setUpdateId(user.userId);

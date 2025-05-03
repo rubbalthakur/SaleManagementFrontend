@@ -1,5 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchLeadSourcesByOrganisation } from "@/app/store/features/leadSources/leadSourceSlice";
+import { RootState, AppDispatch } from "@/app/store/store";
+
 import { toast, ToastContainer } from "react-toastify";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
@@ -46,7 +50,7 @@ export function LeadSources() {
     try {
       setLoading(true);
       const response = await api.post(API_CONFIG.GET_LEAD_SOURCE, {});
-      if (response.data && response.data.LeadSources) {
+      if (response?.data?.LeadSources) {
         setLeadSources(response.data.LeadSources);
       }
     } catch (error) {
