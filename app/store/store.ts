@@ -3,6 +3,8 @@ import authReducer from "./features/auth/authSlice";
 import leadReducer from "./features/leads/leadSlice";
 import userReducer from "./features/users/userSlice";
 import leadSourceReducer from "./features/leadSources/leadSourceSlice";
+import leadTypeReducer from "./features/leadTypes/leadTypeSlice";
+import clientReducer from "./features/clients/clientSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +12,8 @@ export const store = configureStore({
     leads: leadReducer,
     users: userReducer,
     leadSources: leadSourceReducer,
+    leadTypes: leadTypeReducer,
+    clients: clientReducer,
   },
 });
 

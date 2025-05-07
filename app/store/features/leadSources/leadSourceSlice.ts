@@ -1,38 +1,18 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "@/app/middleware/authMiddleware";
-import { API_CONFIG } from "@/config/api";
+import { createSlice } from "@reduxjs/toolkit";
+import { fetchLeadSourcesByOrganisation } from "./leadSourceService";
+import { LeadSource } from "@/types/LeadSource";
 
-interface LeadSource {
-  id: number;
-  leadSourceName: string;
-}
-
-interface LeadState {
+interface LeadSourceState {
   leadSources: LeadSource[];
   loading: boolean;
   error: string | null;
 }
 
-const initialState: LeadState = {
+const initialState: LeadSourceState = {
   leadSources: [],
   loading: true,
   error: null,
 };
-
-export const fetchLeadSourcesByOrganisation = createAsyncThunk(
-  "leadSources/fetchLeadSourcesByOrganisation",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await api.post(API_CONFIG.GET_LEAD_SOURCE, {});
-      if (response?.data?.LeadSources?.length > 0) {
-        return response.data.LeadSources as LeadSource[];
-      }
-      return [] as LeadSource[];
-    } catch (error: any) {
-      return rejectWithValue(error.message || "failed to fetch leadSources");
-    }
-  }
-);
 
 export const userSlice = createSlice({
   name: "leadSources",

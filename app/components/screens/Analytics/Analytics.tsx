@@ -52,7 +52,7 @@ interface Client {
 interface Lead {
   id: number;
   description: string;
-  Proposal?: {
+  Proposal: {
     id: number;
     organisationId: number;
     clientId: number;
@@ -610,7 +610,7 @@ export function Analytics() {
         </div>
       )}
 
-      {/*----------------------------------------------------Add Client----------------------------------------------*/}
+      {/*----------------------------------------------------Add Proposal----------------------------------------------*/}
       {activeProposalTab === "addProposal" && (
         <div className="border rounded-lg shadow-md p-8 w-full max-w-md mx-4 my-4">
           <h2 className="text-2xl font-semibold mb-4">

@@ -1,26 +1,27 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchLeadSourcesByOrganisation } from "@/app/store/features/leadSources/leadSourceSlice";
+import { fetchLeadSourcesByOrganisation } from "@/app/store/features/leadSources/leadSourceService";
 import { RootState, AppDispatch } from "@/app/store/store";
+import { LeadSource } from "@/types/LeadSource";
 
 import { toast, ToastContainer } from "react-toastify";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 
-interface LeadSource {
-  id: number;
-  leadSourceName: string;
-}
-
 export function LeadSources() {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const leadSources = useSelector(
+    (state: RootState) => state.leadSources.leadSources
+  );
+  const loading = useSelector((state: RootState) => state.leadSources.loading);
+
   const [activeLeadSourceTab, setActiveLeadSourceTab] =
     useState("displayLeadSource");
 
-  const [leadSources, setLeadSources] = useState<LeadSource[]>([]);
   const [leadSourceName, setLeadSourceName] = useState<string>("");
   const [updateId, setUpdateId] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
   const [leadSourceNameError, setLeadSourceNameError] = useState<string>("");
@@ -45,21 +46,6 @@ export function LeadSources() {
     setLeadSourceNameError("");
   };
 
-  //---------------------------------get all lead sources-----------------------------------
-  const getLeadSources = async () => {
-    try {
-      setLoading(true);
-      const response = await api.post(API_CONFIG.GET_LEAD_SOURCE, {});
-      if (response?.data?.LeadSources) {
-        setLeadSources(response.data.LeadSources);
-      }
-    } catch (error) {
-      console.log("error in fetching lead sources", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   //---------------------------------add new lead source-----------------------------------
   const addLeadSources = async () => {
     try {
@@ -79,7 +65,7 @@ export function LeadSources() {
         resetError();
         setProcessing(false);
         setActiveLeadSourceTab("displayLeadSource");
-        getLeadSources();
+        dispatch(fetchLeadSourcesByOrganisation());
       }, 600);
     } catch (error) {
       console.log("error in adding lead source", error);
@@ -113,7 +99,7 @@ export function LeadSources() {
         setActiveLeadSourceTab("displayLeadSource");
         resetVariables();
         resetError();
-        getLeadSources();
+        dispatch(fetchLeadSourcesByOrganisation());
       }, 600);
     } catch (error) {
       console.log("error in updating lead source", error);
@@ -125,7 +111,7 @@ export function LeadSources() {
   };
 
   useEffect(() => {
-    getLeadSources();
+    dispatch(fetchLeadSourcesByOrganisation());
   }, []);
 
   if (loading) {
@@ -165,7 +151,7 @@ export function LeadSources() {
               </thead>
               <tbody>
                 {leadSources.length > 0 ? (
-                  leadSources.map((leadSource: LeadSource) => (
+                  leadSources.map((leadSource) => (
                     <tr key={leadSource.id} className="hover:bg-gray-50">
                       <td className="py-2 px-4 border-b">{leadSource.id}</td>
                       <td className="py-2 px-4 border-b">

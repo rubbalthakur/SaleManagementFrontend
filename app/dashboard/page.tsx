@@ -12,7 +12,7 @@ import {
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 import { jwtDecode, JwtPayload } from "jwt-decode";
-import { Client } from "../components/screens/Clients/Client";
+import { Clients } from "../components/screens/Clients/Clients";
 
 import { Sidebar } from "../components/screens/SideBar/SideBar";
 import { Dashboard } from "../components/screens/Dashboard/Dashboard";
@@ -75,7 +75,7 @@ const SalesFunnelDashboard: React.FC = () => {
       <div className="flex-1 overflow-auto p-6">
         {activeTab === "dashboard" && <Dashboard />}
         {activeTab === "leads" && <Leads />}
-        {activeTab === "clients" && <Client />}
+        {activeTab === "clients" && <Clients />}
         {activeTab === "analytics" && <Analytics />}
         {activeTab === "settings" && <Settings />}
       </div>

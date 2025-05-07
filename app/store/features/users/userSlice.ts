@@ -1,28 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
-
-interface User {
-  userId: number;
-  roleId: number;
-  email: string;
-  role: string;
-  firstName: string;
-  lastName: string;
-}
-
-interface UserOrgData {
-  userId: number;
-  roleId: number;
-  User?: {
-    emailId: string;
-    firstName: string;
-    lastName: string;
-  };
-  Role?: {
-    role: string;
-  };
-}
+import { User } from "@/types/Users";
 
 interface UserState {
   users: User[];
@@ -36,7 +15,7 @@ const initialState: UserState = {
   error: null,
 };
 
-//-------------------------fetch all users for organisation----------------------------
+//-------------------------fetch all users for organisation---------------
 export const fetchUsersByOrganisation = createAsyncThunk(
   "users/fetchUsersByOrganisation",
   async (_, { rejectWithValue }) => {
@@ -47,14 +26,7 @@ export const fetchUsersByOrganisation = createAsyncThunk(
         response.data?.UserOrganisations &&
         Object.keys(response.data.UserOrganisations).length > 0
       ) {
-        return response.data.UserOrganisations.map((userOrg: UserOrgData) => ({
-          userId: userOrg.userId,
-          roleId: userOrg.roleId,
-          email: userOrg.User?.emailId,
-          firstName: userOrg.User?.firstName,
-          lastName: userOrg.User?.lastName,
-          role: userOrg.Role?.role,
-        }));
+        return response.data.UserOrganisations as User[];
       }
       return [] as User[];
     } catch (error: any) {

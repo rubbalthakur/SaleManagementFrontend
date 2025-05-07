@@ -4,11 +4,17 @@ export interface Lead {
   organisationId: number;
   leadTypeId: number;
   leadSourceId: number;
-  firstName: string;
-  lastName: string;
-  emailId: string;
-  description: string;
   status: string;
-  leadTypeName: string;
-  leadSourceName: string;
+  description: string;
+  User: {
+    emailId: string;
+    firstName: string;
+    lastName: string;
+  };
+  LeadType: {
+    leadTypeName: string;
+  };
+  LeadSource: {
+    leadSourceName: string;
+  };
 }

@@ -151,8 +151,8 @@ export function Users() {
               <tbody>
                 {users.map((user) => (
                   <tr key={user.userId} className="hover:bg-gray-50">
-                    <td className="py-2 px-4 border-b">{user.email}</td>
-                    <td className="py-2 px-4 border-b">{user.role}</td>
+                    <td className="py-2 px-4 border-b">{user.User.emailId}</td>
+                    <td className="py-2 px-4 border-b">{user.Role.role}</td>
                     <td className="py-2 px-4 border-b">
                       {user.roleId === 1 ? (
                         <p>_</p>

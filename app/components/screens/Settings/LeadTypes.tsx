@@ -3,11 +3,7 @@ import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
-
-interface LeadType {
-  id: number;
-  leadTypeName: string;
-}
+import { LeadType } from "@/types/LeadType";
 
 export function LeadTypes() {
   const [activeLeadTypeTab, setActiveLeadTypeTab] = useState("displayLeadType");

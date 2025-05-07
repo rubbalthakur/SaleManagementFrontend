@@ -5,8 +5,7 @@ import { RootState, AppDispatch } from "@/app/store/store";
 import {
   fetchLeadsForAdmin,
   fetchLeadsForUser,
-} from "@/app/store/features/leads/leadSlice";
-import { Lead } from "@/types/Lead";
+} from "@/app/store/features/leads/leadService";
 import {
   BarChart,
   Bar,
@@ -45,20 +44,14 @@ export function Dashboard() {
   useEffect(() => {
     setCountTotal(allLeads.length);
 
-    const newCount = allLeads.filter(
-      (lead: Lead) => lead.status === "New"
-    ).length;
+    const newCount = allLeads.filter((lead) => lead.status === "New").length;
     const discussionCount = allLeads.filter(
-      (lead: Lead) => lead.status === "Discussion"
+      (lead) => lead.status === "Discussion"
     ).length;
-    const hotCount = allLeads.filter(
-      (lead: Lead) => lead.status === "Hot"
-    ).length;
-    const holdCount = allLeads.filter(
-      (lead: Lead) => lead.status === "Hold"
-    ).length;
+    const hotCount = allLeads.filter((lead) => lead.status === "Hot").length;
+    const holdCount = allLeads.filter((lead) => lead.status === "Hold").length;
     const closedCount = allLeads.filter(
-      (lead: Lead) => lead.status === "Closed"
+      (lead) => lead.status === "Closed"
     ).length;
 
     setCountNew(newCount);
