@@ -40,9 +40,14 @@ export const addClient = createAsyncThunk(
   "clients/addClient",
   async (payload: any, { rejectWithValue }) => {
     try {
-      return await api.post(API_CONFIG.ADD_CLIENT, payload);
+      const response = await api.post(API_CONFIG.ADD_CLIENT, payload);
+      if (response.status >= 200 && response.status < 300) {
+        return response.data;
+      } else {
+        return rejectWithValue("Failed to Add Client");
+      }
     } catch (error: any) {
-      return rejectWithValue(error.message || "error in updating client");
+      return rejectWithValue(error.message || "Failed to Add Client");
     }
   }
 );

@@ -89,11 +89,11 @@ export function EditClient({
     );
     if (updateClient.fulfilled.match(resultAction)) {
       toast.success("updated client");
+      dispatch(fetchClients());
       setTimeout(() => {
         resetVariables();
         resetError();
         setActiveClientTab("displayClient");
-        dispatch(fetchClients());
       }, 600);
     } else if (updateClient.rejected.match(resultAction)) {
       toast.error("client not updated");

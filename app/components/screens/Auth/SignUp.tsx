@@ -118,7 +118,6 @@ export function SignUp({ onSignInClick }: SignUpProps) {
         </button>
         <button
           onClick={onSignInClick}
-          type="submit"
           className="w-full bg-blue-500 text-white p-2 rounded"
         >
           Sign In

@@ -1,7 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store/store";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/app/store/store";
+import {
+  fetchLeadsForAdmin,
+  fetchLeadsForUser,
+} from "@/app/store/features/leads/leadService";
+import { fetchClients } from "@/app/store/features/clients/clientService";
 
 import { toast, ToastContainer } from "react-toastify";
 import api from "@/app/middleware/authMiddleware";
@@ -32,21 +37,10 @@ interface ProposalClient {
     firstName: string;
     lastName: string;
   };
+
   Lead: {
     description: string;
   };
-}
-
-interface Client {
-  id: number;
-  organisationId: number;
-  firstName: string;
-  lastName: string;
-  emailId: string;
-  city: string;
-  state: string;
-  country: string;
-  contact: string;
 }
 
 interface Lead {
@@ -59,9 +53,6 @@ interface Lead {
     leadId: number;
     cost: number;
     status: string;
-    emailId: string;
-    firstName: string;
-    lastName: string;
     leadDescription: string;
     Client: {
       emailId: string;
@@ -72,7 +63,11 @@ interface Lead {
 }
 
 export function Analytics() {
+  const dispatch = useDispatch<AppDispatch>();
+
   const roleId = useSelector((state: RootState) => state.auth.roleId);
+  const leads = useSelector((state: RootState) => state.leads.leads);
+  const clients = useSelector((state: RootState) => state.clients.clients);
 
   const [activeProposalTab, setActiveProposalTab] = useState<
     "displayProposal" | "addProposal" | "updateProposal"
@@ -80,8 +75,6 @@ export function Analytics() {
 
   const [allProposals, setAllProposals] = useState<Proposal[]>([]);
   const [filteredProposals, setFilteredProposals] = useState<Proposal[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
-  const [leads, setLeads] = useState<Lead[]>([]);
 
   const [filterClient, setFilterClient] = useState<string>("");
 
@@ -280,78 +273,6 @@ export function Analytics() {
     }
   };
 
-  //---------------------------------get all clients-----------------------------------
-  const fetchClients = async () => {
-    try {
-      setLoading(true);
-      const response = await api.post(
-        API_CONFIG.GET_ALL_CLIENT_BY_ORGANISATION
-      );
-      if (
-        response.data?.OrganisationProfile?.Clients &&
-        Object.keys(response.data.OrganisationProfile.Clients).length > 0
-      ) {
-        const clientData = response.data.OrganisationProfile.Clients.map(
-          (client: Client) => ({
-            id: client.id,
-            organisationId: client.organisationId,
-            emailId: client.emailId,
-            firstName: client.firstName,
-            lastName: client.lastName,
-            city: client.city,
-            state: client.state,
-            country: client.country,
-            contact: client.contact,
-          })
-        );
-        setClients(clientData);
-      }
-    } catch (error) {
-      console.log("error in fetching clients", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  //---------------------------------get all leads-----------------------------------
-  const fetchLeads = async () => {
-    try {
-      setLoading(true);
-      if (roleId === 1) {
-        //-------for admin---------------
-        const response = await api.post(
-          API_CONFIG.GET_ALL_LEAD_BY_ORGANISATION,
-          {}
-        );
-        if (
-          response.data &&
-          response.data.Leads &&
-          Object.keys(response.data.Leads).length > 0
-        ) {
-          const leadData = response.data.Leads.map((leadUser: Lead) => ({
-            id: leadUser.id,
-            description: leadUser.description,
-          }));
-          setLeads(leadData);
-        }
-      } else {
-        //--------------for user------------------
-        const response = await api.post(API_CONFIG.GET_LEAD_BY_USER, {});
-        if (response.data && Object.keys(response.data).length > 0) {
-          const leadData = response.data.map((leadUser: Lead) => ({
-            id: leadUser.id,
-            description: leadUser.description,
-          }));
-          setLeads(leadData);
-        }
-      }
-    } catch (error) {
-      console.log("error in fetching leads", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const clearFilter = () => {
     setFilterClient("");
   };
@@ -364,8 +285,12 @@ export function Analytics() {
 
   useEffect(() => {
     fetchProposals();
-    fetchClients();
-    fetchLeads();
+    dispatch(fetchClients());
+    if (roleId === 1) {
+      dispatch(fetchLeadsForAdmin());
+    } else {
+      dispatch(fetchLeadsForUser());
+    }
   }, []);
 
   useEffect(() => {
@@ -542,13 +467,15 @@ export function Analytics() {
                     setLeadId(e.target.value);
                   }}
                 >
-                  {leads.map((lead) => {
-                    return (
-                      <option value={lead.id} key={lead.id}>
-                        {lead.id}:{lead.description}
-                      </option>
-                    );
-                  })}
+                  {leads
+                    .filter((lead) => !lead.Proposal)
+                    .map((lead) => {
+                      return (
+                        <option value={lead.id} key={lead.id}>
+                          {lead.id}:{lead.description}
+                        </option>
+                      );
+                    })}
                 </select>
                 {leadIdError && (
                   <p className="text-red-500 text-sm">{leadIdError}</p>
@@ -666,13 +593,15 @@ export function Analytics() {
                   }}
                 >
                   <option value="">select Lead(id:description)</option>
-                  {leads.map((lead) => {
-                    return (
-                      <option value={lead.id} key={lead.id}>
-                        {lead.id}:{lead.description}
-                      </option>
-                    );
-                  })}
+                  {leads
+                    .filter((lead) => !lead.Proposal)
+                    .map((lead) => {
+                      return (
+                        <option value={lead.id} key={lead.id}>
+                          {lead.id}:{lead.description}
+                        </option>
+                      );
+                    })}
                 </select>
                 {leadIdError && (
                   <p className="text-red-500 text-sm">{leadIdError}</p>

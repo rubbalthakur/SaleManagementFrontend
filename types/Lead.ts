@@ -17,4 +17,18 @@ export interface Lead {
   LeadSource: {
     leadSourceName: string;
   };
+  Proposal?: {
+    id: number;
+    organisationId: number;
+    clientId: number;
+    leadId: number;
+    cost: number;
+    status: string;
+    leadDescription: string;
+    Client?: {
+      emailId: string;
+      firstName: string;
+      lastName: string;
+    };
+  };
 }
