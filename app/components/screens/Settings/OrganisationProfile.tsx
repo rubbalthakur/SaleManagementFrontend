@@ -1,11 +1,15 @@
 "use client";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../../store/store";
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import { setRoleId } from "../../../store/features/auth/authSlice";
 import "react-toastify/dist/ReactToastify.css";
 import api from "@/app/middleware/authMiddleware";
 import { API_CONFIG } from "@/config/api";
 
 export function OrganisationProfile() {
+  const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(true);
   const [organisationName, setOrganisationName] = useState<string>("");
   const [country, setCountry] = useState<string>("");
@@ -53,6 +57,18 @@ export function OrganisationProfile() {
     return isValid;
   };
 
+  //--------------get user organisation--------------
+  const getUserOrganisation = async () => {
+    try {
+      const response = await api.post(API_CONFIG.GET_USER_ORGANISATION);
+      if (response?.data?.roleId) {
+        dispatch(setRoleId(response.data.roleId));
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   //-----------------------------------Update Organisattion profile data------------------------------------------------
   const updateData = async () => {
     resetErrors();
@@ -73,6 +89,7 @@ export function OrganisationProfile() {
         );
         if (response.status >= 200 && response.status < 300) {
           toast.success("Organisation Profile Updated");
+          getUserOrganisation();
         } else {
           toast.error("Failed to update Organisation profile");
         }

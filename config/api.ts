@@ -1,5 +1,6 @@
 export const API_CONFIG = {
-  BASE_URL: "http://localhost:3001/api",
+  BASE_URL: "https://salemanagementbackend.onrender.com/api",
+  TEST_SIGNIN_URL: "/auth/testsignin",
   SIGNIN_URL: "/auth/signin",
   SIGNUP_URL: "/auth/register",
   GET_PROFILE: "/member/getprofile",

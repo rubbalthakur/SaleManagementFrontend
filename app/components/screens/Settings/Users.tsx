@@ -59,7 +59,10 @@ export function Users() {
         roleId,
       });
       if (response.status >= 200 && response.status < 300) {
-        toast.success("Sent Invitation link");
+        toast.success("Invitation link Generated");
+        if (response.data.invitationLink) {
+          alert(`send this link:- ${response.data.invitationLink}`);
+        }
       }
 
       setTimeout(() => {

@@ -32,7 +32,7 @@ export function Settings() {
       </button>
 
       {/* -------------------admin only options ------------------- */}
-      {roleId === 1 && (
+      {(!roleId || (roleId !== 2 && roleId !== 3)) && (
         <>
           <button
             onClick={() => setActiveSetting("organisationProfile")}
@@ -66,7 +66,7 @@ export function Settings() {
         {activeSetting === "profile" && <Profile />}
         {activeSetting === "changePassword" && <UpdatePassword />}
         {/*---------------- admin only tabs---------------- */}
-        {roleId === 1 && (
+        {(!roleId || (roleId !== 2 && roleId !== 3)) && (
           <>
             {activeSetting === "organisationProfile" && <OrganisationProfile />}
             {activeSetting === "users" && <Users />}
