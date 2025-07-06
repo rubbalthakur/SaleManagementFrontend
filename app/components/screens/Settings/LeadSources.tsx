@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchLeadSourcesByOrganisation } from "@/app/store/features/leadSources/leadSourceService";
 import { RootState, AppDispatch } from "@/app/store/store";
-import { LeadSource } from "@/types/LeadSource";
+// import { LeadSource } from "@/types/LeadSource";
 
 import { toast, ToastContainer } from "react-toastify";
 import api from "@/app/middleware/authMiddleware";

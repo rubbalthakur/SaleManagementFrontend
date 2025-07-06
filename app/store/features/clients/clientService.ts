@@ -14,8 +14,8 @@ export const fetchClients = createAsyncThunk(
         return response.data.OrganisationProfile.Clients as Client[];
       }
       return [] as Client[];
-    } catch (error: any) {
-      return rejectWithValue(error.message || "error in fetching clients");
+    } catch (error: unknown) {
+      return rejectWithValue((error as any).message || "error in fetching clients");
     }
   }
 );
@@ -30,8 +30,8 @@ export const updateClient = createAsyncThunk(
       } else {
         return rejectWithValue("Failed to update Client");
       }
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to update Client");
+    } catch (error: unknown) {
+      return rejectWithValue((error as any).message || "Failed to update Client");
     }
   }
 );
@@ -46,8 +46,8 @@ export const addClient = createAsyncThunk(
       } else {
         return rejectWithValue("Failed to Add Client");
       }
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to Add Client");
+    } catch (error: unknown) {
+      return rejectWithValue((error as any).message || "Failed to Add Client");
     }
   }
 );
