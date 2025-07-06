@@ -16,51 +16,71 @@ export function Settings() {
   const [activeSetting, setActiveSetting] = useState("profile");
 
   return (
-    <div className="p-6 space-y-6 text-black">
-      <button
-        onClick={() => setActiveSetting("profile")}
-        style={{ border: "1px solid black", margin: "auto 5px" }}
-      >
-        Profile
-      </button>
+    <div className="space-y-6 text-black">
+      <div className="flex justify-between bg-purple-400 p-2">
+        <button
+          className={`cursor-pointer ${
+            activeSetting === "profile" ? "text-white" : ""
+          }`}
+          onClick={() => setActiveSetting("profile")}
+          // style={{ border: "1px solid black", margin: "auto 5px" }}
+        >
+          Profile
+        </button>
 
-      <button
-        onClick={() => setActiveSetting("changePassword")}
-        style={{ border: "1px solid black", margin: "auto 5px" }}
-      >
-        Change Password
-      </button>
+        <button
+          className={`cursor-pointer ${
+            activeSetting === "changePassword" ? "text-white" : ""
+          }`}
+          onClick={() => setActiveSetting("changePassword")}
+          // style={{ border: "1px solid black", margin: "auto 5px" }}
+        >
+          Change Password
+        </button>
 
-      {/* -------------------admin only options ------------------- */}
-      {(!roleId || (roleId !== 2 && roleId !== 3)) && (
-        <>
-          <button
-            onClick={() => setActiveSetting("organisationProfile")}
-            style={{ border: "1px solid black", margin: "auto 5px" }}
-          >
-            Orgainsation Profile
-          </button>
+        {/* -------------------admin only options ------------------- */}
+        {(!roleId || (roleId !== 2 && roleId !== 3)) && (
+          <>
+            <button
+              className={`cursor-pointer ${
+                activeSetting === "organisationProfile" ? "text-white" : ""
+              }`}
+              onClick={() => setActiveSetting("organisationProfile")}
+              // style={{ border: "1px solid black", margin: "auto 5px" }}
+            >
+              Orgainsation Profile
+            </button>
 
-          <button
-            onClick={() => setActiveSetting("users")}
-            style={{ border: "1px solid black", margin: "auto 5px" }}
-          >
-            Users
-          </button>
-          <button
-            onClick={() => setActiveSetting("leadTypes")}
-            style={{ border: "1px solid black", margin: "auto 5px" }}
-          >
-            Lead Types
-          </button>
-          <button
-            onClick={() => setActiveSetting("leadSources")}
-            style={{ border: "1px solid black", margin: "auto 5px" }}
-          >
-            LeadSources
-          </button>
-        </>
-      )}
+            <button
+              className={`cursor-pointer ${
+                activeSetting === "users" ? "text-white" : ""
+              }`}
+              onClick={() => setActiveSetting("users")}
+              // style={{ border: "1px solid black", margin: "auto 5px" }}
+            >
+              Users
+            </button>
+            <button
+              className={`cursor-pointer ${
+                activeSetting === "leadTypes" ? "text-white" : ""
+              }`}
+              onClick={() => setActiveSetting("leadTypes")}
+              // style={{ border: "1px solid black", margin: "auto 5px" }}
+            >
+              Lead Types
+            </button>
+            <button
+              className={`cursor-pointer ${
+                activeSetting === "leadSources" ? "text-white" : ""
+              }`}
+              onClick={() => setActiveSetting("leadSources")}
+              // style={{ border: "1px solid black", margin: "auto 5px" }}
+            >
+              LeadSources
+            </button>
+          </>
+        )}
+      </div>
 
       <div className="flex-1 overflow-auto p-6">
         {activeSetting === "profile" && <Profile />}
